@@ -35,21 +35,18 @@ double TestTaskModel::solution(double x, double C)
     return exp(2 * x) * C;
 }
 
-void RungeKutt::TestTaskModel::method(double X, double V, double STEP, QtCharts::QLineSeries *series_x, QtCharts::QLineSeries *series_dudx)
+void RungeKutt::TestTaskModel::method(double &X, double &V, double STEP, QtCharts::QLineSeries *series_x, QtCharts::QLineSeries *series_dudx)
 {
-    series_x->clear();
-    series_dudx->clear();
-
     double k1 = f(X, V);
     double k2 = f(X + STEP / 2.0, V + (STEP / 2.0) * k1);
     double k3 = f(X + STEP / 2.0, V + (STEP / 2.0) * k2);
     double k4 = f(X + STEP, V + STEP * k3);
 
-    series_x->append(X, V);
-    series_dudx->append(X, f(X, V));
-
     V += STEP * (k1 + 2 * k2 + 2 * k3 + k4) / 6.0;
     X += STEP;
+
+    series_x->append(X, V);
+    series_dudx->append(X, f(X, V));
 }
 
 void RungeKutt::TestTaskModel::runRK4(double x, double v, QtCharts::QLineSeries *series_x, QtCharts::QLineSeries *series_dudx)
@@ -57,7 +54,7 @@ void RungeKutt::TestTaskModel::runRK4(double x, double v, QtCharts::QLineSeries 
     series_x->clear();
     series_dudx->clear();
 
-    QVector<DataRow> results;  // Для хранения данных таблицы
+    QVector<DataRow> results;
     double step = m_parametres.STEP;
 
     double old_x = x;
@@ -65,23 +62,21 @@ void RungeKutt::TestTaskModel::runRK4(double x, double v, QtCharts::QLineSeries 
     bool exit_flag = false;
 
     for (int i = 0; i < m_parametres.MAX_STEPS; ++i) {
-        // Сохранение текущих значений
         DataRow row;
         row.index = i;
         row.X_i = x;
         row.V_i = v;
-        row.V_i_hat = 0;  // Метод без контроля, поэтому V_i^ = 0
-        row.V_diff = 0;   // V_i - V_i^ = 0
-        row.OLP_S = 0;    // ОЛП(S) = 0
+        row.V_i_hat = 0;
+        row.V_diff = 0;
+        row.OLP_S = 0;
         row.STEP_i = step;
-        row.divisions = 0;  // Количество делений = 0
-        row.doublings = 0;  // Количество удвоений = 0
+        row.divisions = 0;
+        row.doublings = 0;
         row.U_i = solution(x, constanta(m_parametres.A, m_parametres.START_U));
         row.U_V_diff = std::abs(row.U_i - v);
 
-        results.append(row);  // Добавляем строку в результаты
+        results.append(row);
 
-        // Добавляем точки на графики
         series_x->append(x, v);
         series_dudx->append(x, f(x, v));
 
