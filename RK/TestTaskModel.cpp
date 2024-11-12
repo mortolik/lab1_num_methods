@@ -49,43 +49,48 @@ void RungeKutt::TestTaskModel::method(double &X, double &V, double STEP, QtChart
     series_dudx->append(X, f(X, V));
 }
 
-void RungeKutt::TestTaskModel::runRK4(double x, double v, QtCharts::QLineSeries *series_x, QtCharts::QLineSeries *series_dudx)
-{
-    series_x->clear();
-    series_dudx->clear();
+void RungeKutt::TestTaskModel::runRK4(double x, double v, QtCharts::QLineSeries *series_ui, QtCharts::QLineSeries *series_vi) {
+    series_ui->clear();
+    series_vi->clear();
 
     QVector<DataRow> results;
     double step = m_parametres.STEP;
+
+    // Рассчитаем константу C для точного решения, используя начальное значение
+    double C = constanta(m_parametres.A, m_parametres.START_U);
 
     double old_x = x;
     double old_v = v;
     bool exit_flag = false;
 
     for (int i = 0; i < m_parametres.MAX_STEPS; ++i) {
+        // Сохранение данных для таблицы
         DataRow row;
         row.index = i;
         row.X_i = x;
         row.V_i = v;
-        row.V_i_hat = 0;
-        row.V_diff = 0;
-        row.OLP_S = 0;
         row.STEP_i = step;
-        row.divisions = 0;
-        row.doublings = 0;
-        row.U_i = solution(x, constanta(m_parametres.A, m_parametres.START_U));
-        row.U_V_diff = std::abs(row.U_i - v);
+
+        // Вычисляем точное решение U_i перед обновлением V_i
+        double U_i = solution(x, C);
+        row.U_i = U_i;
+        row.U_V_diff = std::abs(U_i - v);  // Считаем разность до шага Рунге-Кутты
 
         results.append(row);
 
-        series_x->append(x, v);
-        series_dudx->append(x, f(x, v));
+        // Добавляем данные на график
+        series_ui->append(x, U_i);  // Точное решение
+        series_vi->append(x, v);    // Численное решение
 
-        method(x, v, step, series_x, series_dudx);
+        // Шаг метода Рунге-Кутта
+        method(x, v, step, series_ui, series_vi);
+
+        // Проверка выхода за границы
         if (x > m_parametres.B + m_parametres.BOUND_EPS) {
             x = old_x;
             v = old_v;
             step = m_parametres.B - old_x;
-            method(x, v, step, series_x, series_dudx);
+            method(x, v, step, series_ui, series_vi);
             exit_flag = true;
         }
 
@@ -99,6 +104,7 @@ void RungeKutt::TestTaskModel::runRK4(double x, double v, QtCharts::QLineSeries 
 
     m_results = results;
 }
+
 
 QVector<DataRow> RungeKutt::TestTaskModel::getResults()
 {
