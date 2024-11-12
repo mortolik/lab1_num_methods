@@ -32,11 +32,11 @@ MainWindow::MainWindow(QWidget *parent)
 
     aSpinBox->setValue(0.0);
     bSpinBox->setValue(5.0);
-    stepSpinBox->setValue(0.001);
+    stepSpinBox->setValue(0.01);
     maxStepsSpinBox->setValue(500.0);
     epsSpinBox->setValue(0.001);
-    boundEpsSpinBox->setValue(0.001);
-    startUSpinBox->setValue(0.0);
+    boundEpsSpinBox->setValue(0.01);
+    startUSpinBox->setValue(1.0);
     // Кнопка для создания модели и запуска расчетов
     QPushButton *createButton = new QPushButton("Создать модель и обновить виджет", this);
     mainLayout->addWidget(createButton);
