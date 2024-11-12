@@ -17,6 +17,8 @@ MainWindow::MainWindow(QWidget *parent)
     setCentralWidget(mainWidget);
 
     QVBoxLayout *mainLayout = new QVBoxLayout(mainWidget);
+    mainLayout->setAlignment(Qt::AlignTop);
+
     QHBoxLayout *paramLayout = new QHBoxLayout();
     mainLayout->addLayout(paramLayout);
 
@@ -29,14 +31,14 @@ MainWindow::MainWindow(QWidget *parent)
     auto *boundEpsSpinBox = createSpinBox("Bound Eps:", paramLayout, 0.0001, 1.0, 0.001);
     auto *startUSpinBox = createSpinBox("Start U:", paramLayout, -100.0, 100.0, 1.0);
 
-
     aSpinBox->setValue(0.0);
     bSpinBox->setValue(5.0);
     stepSpinBox->setValue(0.01);
-    maxStepsSpinBox->setValue(500.0);
+    maxStepsSpinBox->setValue(500);
     epsSpinBox->setValue(0.001);
     boundEpsSpinBox->setValue(0.01);
     startUSpinBox->setValue(1.0);
+
     // Кнопка для создания модели и запуска расчетов
     QPushButton *createButton = new QPushButton("Создать модель и обновить виджет", this);
     mainLayout->addWidget(createButton);
@@ -46,8 +48,10 @@ MainWindow::MainWindow(QWidget *parent)
         // Очистка предыдущей модели и виджета
         if (m_testTaskModel != nullptr)
             delete m_testTaskModel;
-        if (m_testTaskWidget != nullptr)
+        if (m_testTaskWidget != nullptr) {
+            mainLayout->removeWidget(m_testTaskWidget);
             delete m_testTaskWidget;
+        }
 
         // Создание модели с полученными параметрами
         double A = aSpinBox->value();
@@ -60,14 +64,15 @@ MainWindow::MainWindow(QWidget *parent)
 
         m_testTaskModel = new RungeKutt::TestTaskModel(A, B, Step, MaxSteps, Eps, BoundEps, StartU, this);
 
-        // Запуск расчетов
-        //m_testTaskModel->runRK4(A, StartU, nullptr, nullptr); // Вызовите расчеты перед передачей модели в виджет
-
         // Создание виджета и передача ему модели
         m_testTaskWidget = new RungeKutt::TestTaskWidget(m_testTaskModel, this);
-        mainLayout->addWidget(m_testTaskWidget);
+
+        // Добавляем виджет ниже кнопки и устанавливаем его растяжение
+        mainLayout->addWidget(m_testTaskWidget, 1);
     });
 }
+
+
 
 MainWindow::~MainWindow() {
     delete m_testTaskModel;
