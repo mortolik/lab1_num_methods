@@ -57,9 +57,13 @@ RungeKutt::TestTaskWidget::TestTaskWidget(TestTaskModel *model, QWidget *parent)
         QChart *chart = new QChart();
         m_seriesSolution = new QLineSeries();
         m_seriesSolution->setName("Точное решение U(x)");
+        QPen solutionPen(Qt::red);
+        solutionPen.setWidth(3);  // Увеличиваем толщину линии, чтобы было видно совпадение линий
+        m_seriesSolution->setPen(solutionPen);
 
         m_seriesDerivative = new QLineSeries();
         m_seriesDerivative->setName("Численное решение V(x)");
+
 
         chart->addSeries(m_seriesSolution);
         chart->addSeries(m_seriesDerivative);
