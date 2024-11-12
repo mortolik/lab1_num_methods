@@ -12,7 +12,7 @@ class TestTaskModel : public QObject
     Q_OBJECT
 public:
     explicit TestTaskModel(double A, double B, double Step, int MaxSteps, double Eps, double BoundEps, double StartU, QObject *parent = nullptr);
-    void method(double &X, double &V, double STEP, QtCharts::QLineSeries *series_x, QtCharts::QLineSeries *series_dudx);
+    void method(double &X, double &V, double STEP);
     void setA(double a);
     void setDt(double dt);
     double getA() const;

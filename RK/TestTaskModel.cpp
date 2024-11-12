@@ -35,7 +35,7 @@ double TestTaskModel::solution(double x, double C)
     return exp(2 * x) * C;
 }
 
-void RungeKutt::TestTaskModel::method(double &X, double &V, double STEP, QtCharts::QLineSeries *series_x, QtCharts::QLineSeries *series_dudx)
+void RungeKutt::TestTaskModel::method(double &X, double &V, double STEP)
 {
     double k1 = f(X, V);
     double k2 = f(X + STEP / 2.0, V + (STEP / 2.0) * k1);
@@ -44,10 +44,8 @@ void RungeKutt::TestTaskModel::method(double &X, double &V, double STEP, QtChart
 
     V += STEP * (k1 + 2 * k2 + 2 * k3 + k4) / 6.0;
     X += STEP;
-
-    series_x->append(X, V);
-    series_dudx->append(X, f(X, V));
 }
+
 
 void RungeKutt::TestTaskModel::runRK4(double x, double v, QtCharts::QLineSeries *series_ui, QtCharts::QLineSeries *series_vi) {
     series_ui->clear();
@@ -56,7 +54,7 @@ void RungeKutt::TestTaskModel::runRK4(double x, double v, QtCharts::QLineSeries 
     QVector<DataRow> results;
     double step = m_parametres.STEP;
 
-    // Рассчитаем константу C для точного решения, используя начальное значение
+    // Рассчитаем константу C для точного решения
     double C = constanta(m_parametres.A, m_parametres.START_U);
 
     double old_x = x;
@@ -74,7 +72,7 @@ void RungeKutt::TestTaskModel::runRK4(double x, double v, QtCharts::QLineSeries 
         // Вычисляем точное решение U_i перед обновлением V_i
         double U_i = solution(x, C);
         row.U_i = U_i;
-        row.U_V_diff = std::abs(U_i - v);  // Считаем разность до шага Рунге-Кутты
+        row.U_V_diff = std::abs(U_i - v);
 
         results.append(row);
 
@@ -83,14 +81,14 @@ void RungeKutt::TestTaskModel::runRK4(double x, double v, QtCharts::QLineSeries 
         series_vi->append(x, v);    // Численное решение
 
         // Шаг метода Рунге-Кутта
-        method(x, v, step, series_ui, series_vi);
+        method(x, v, step);
 
         // Проверка выхода за границы
         if (x > m_parametres.B + m_parametres.BOUND_EPS) {
             x = old_x;
             v = old_v;
             step = m_parametres.B - old_x;
-            method(x, v, step, series_ui, series_vi);
+            method(x, v, step);
             exit_flag = true;
         }
 
