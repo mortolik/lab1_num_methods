@@ -13,16 +13,16 @@ namespace RungeKutt
         double START_U;
     };
     struct DataRow {
-        int index;            // i
-        double X_i;           // X_i
-        double V_i;           // V_i
-        double V_i_hat;       // V_i^
-        double V_diff;        // V_i - V_i^
-        double OLP_S;         // ОЛП(S)
-        double STEP_i;        // STEP_i
-        int divisions;        // Кол-во делений
-        int doublings;        // Кол-во удвоений
-        double U_i;           // U_i
-        double U_V_diff;      // |U_i - V_i|
+        int index = 0;            // i
+        double X_i = 0;           // X_i
+        double V_i = 0;           // V_i
+        double V_i_hat = 0;       // V_i^
+        double V_diff = 0;        // V_i - V_i^
+        double OLP_S = 0;         // ОЛП(S)
+        double STEP_i = 0;        // STEP_i
+        int divisions = 0;        // Кол-во делений
+        int doublings = 0;        // Кол-во удвоений
+        double U_i = 0;           // U_i
+        double U_V_diff = 0;      // |U_i - V_i|
     };
 }
