@@ -110,21 +110,15 @@ void RungeKutt::TestTaskModel::runRK4WithAdaptiveStep(double x, double v, QtChar
     QVector<DataRow> results;
     double step = m_parametres.STEP;
     double tolerance = m_parametres.EPS;
-
     double C = constanta(m_parametres.A, m_parametres.START_U);
 
-    for (int i = 0; i < m_parametres.MAX_STEPS && x <= m_parametres.B; ++i) {
+
+    for (int i = 1; i < m_parametres.MAX_STEPS && x <= m_parametres.B; ++i) {
         DataRow row;
         row.index = i;
-        row.X_i = x;
-        row.V_i = v;
         row.STEP_i = step;
         row.divisions = 0;
         row.doublings = 0;
-
-        double U_i = solution(x, C);
-        row.U_i = U_i;
-        row.U_V_diff = std::abs(U_i - v);
 
         double x_half = x, v_half = v;
         double step_half = step / 2.0;
@@ -151,23 +145,29 @@ void RungeKutt::TestTaskModel::runRK4WithAdaptiveStep(double x, double v, QtChar
             row.doublings += 1;
         }
 
-        row.V_i_hat = v_full;
+        // Присваиваем V_i_hat результат с половинным шагом
+        row.V_i_hat = v_half;
         row.V_diff = std::abs(v_half - v_full);
 
+        // Обновляем для следующего шага
         x = x_full;
         v = v_full;
 
-        results.append(row);
+        row.X_i = x;
+        row.V_i = v;
 
+        double U_i = solution(x, C);
+        row.U_i = U_i;
+
+        row.U_V_diff = std::abs(U_i - v);
+
+        results.append(row);
         series_ui->append(x, U_i);
         series_vi->append(x, v);
     }
 
     m_results = results;
 }
-
-
-
 
 QVector<DataRow> RungeKutt::TestTaskModel::getResults()
 {
