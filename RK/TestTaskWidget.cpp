@@ -97,6 +97,8 @@ RungeKutt::TestTaskWidget::TestTaskWidget(TestTaskModel *model, QWidget *parent)
             m_model->runRK4(x0, v0, m_seriesSolution, m_seriesDerivative);
         }
 
+        m_chartView->chart()->axisX()->setRange(m_model->m_parametres.A, m_model->m_parametres.B);
+
         // Обновление диапазонов осей и построение графиков
         double minY = std::numeric_limits<double>::max();
         double maxY = std::numeric_limits<double>::lowest();
