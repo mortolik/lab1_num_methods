@@ -4,6 +4,7 @@
 #include "RK/TestTaskModel.hpp"
 #include "RK/TestTaskWidget.hpp"
 #include "qboxlayout.h"
+#include "qcheckbox.h"
 #include "qpushbutton.h"
 #include "qspinbox.h"
 
@@ -16,11 +17,13 @@ MainWindow::MainWindow(QWidget *parent)
     mainWidget = new QWidget(this);
     setCentralWidget(mainWidget);
 
+    // Создаем основной вертикальный макет с выравниванием по верху
     QVBoxLayout *mainLayout = new QVBoxLayout(mainWidget);
     mainLayout->setAlignment(Qt::AlignTop);
 
+    // Создаем горизонтальный макет для параметров
     QHBoxLayout *paramLayout = new QHBoxLayout();
-    mainLayout->addLayout(paramLayout);
+    mainLayout->addLayout(paramLayout);  // Добавляем макет параметров в основной макет
 
     // Создание спинбоксов для параметров модели
     auto *aSpinBox = createSpinBox("A:", paramLayout, -10.0, 10.0, 1.0);
@@ -31,6 +34,7 @@ MainWindow::MainWindow(QWidget *parent)
     auto *boundEpsSpinBox = createSpinBox("Bound Eps:", paramLayout, 0.0001, 1.0, 0.001);
     auto *startUSpinBox = createSpinBox("Start U:", paramLayout, -100.0, 100.0, 1.0);
 
+    // Установка значений по умолчанию
     aSpinBox->setValue(0.0);
     bSpinBox->setValue(5.0);
     stepSpinBox->setValue(0.01);
@@ -38,6 +42,10 @@ MainWindow::MainWindow(QWidget *parent)
     epsSpinBox->setValue(0.001);
     boundEpsSpinBox->setValue(0.01);
     startUSpinBox->setValue(1.0);
+
+    // Чекбокс для выбора метода с контролем погрешности
+    QCheckBox *lpCheckBox = new QCheckBox("ЛП", this);
+    mainLayout->addWidget(lpCheckBox);
 
     // Кнопка для создания модели и запуска расчетов
     QPushButton *createButton = new QPushButton("Создать модель и обновить виджет", this);
@@ -49,7 +57,7 @@ MainWindow::MainWindow(QWidget *parent)
         if (m_testTaskModel != nullptr)
             delete m_testTaskModel;
         if (m_testTaskWidget != nullptr) {
-            mainLayout->removeWidget(m_testTaskWidget);
+            mainLayout->removeWidget(m_testTaskWidget);  // Удаляем виджет из макета
             delete m_testTaskWidget;
         }
 
@@ -67,8 +75,11 @@ MainWindow::MainWindow(QWidget *parent)
         // Создание виджета и передача ему модели
         m_testTaskWidget = new RungeKutt::TestTaskWidget(m_testTaskModel, this);
 
-        // Добавляем виджет ниже кнопки и устанавливаем его растяжение
-        mainLayout->addWidget(m_testTaskWidget, 1);
+        // Передаем состояние чекбокса для выбора метода
+        m_testTaskWidget->setUseAdaptiveMethod(lpCheckBox->isChecked());  // Убедимся, что метод вызывается каждый раз перед расчетом
+
+        // Добавляем виджет ниже кнопки
+        mainLayout->addWidget(m_testTaskWidget, 1);  // Растягивающий фактор 1 заполняет оставшееся пространство
     });
 }
 
