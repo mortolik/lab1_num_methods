@@ -103,6 +103,71 @@ void RungeKutt::TestTaskModel::runRK4(double x, double v, QtCharts::QLineSeries 
     m_results = results;
 }
 
+void RungeKutt::TestTaskModel::runRK4WithAdaptiveStep(double x, double v, QtCharts::QLineSeries *series_ui, QtCharts::QLineSeries *series_vi) {
+    series_ui->clear();
+    series_vi->clear();
+
+    QVector<DataRow> results;
+    double step = m_parametres.STEP;
+    double tolerance = m_parametres.EPS;
+
+    double C = constanta(m_parametres.A, m_parametres.START_U);
+
+    for (int i = 0; i < m_parametres.MAX_STEPS && x <= m_parametres.B; ++i) {
+        DataRow row;
+        row.index = i;
+        row.X_i = x;
+        row.V_i = v;
+        row.STEP_i = step;
+        row.divisions = 0;
+        row.doublings = 0;
+
+        double U_i = solution(x, C);
+        row.U_i = U_i;
+        row.U_V_diff = std::abs(U_i - v);
+
+        double x_half = x, v_half = v;
+        double step_half = step / 2.0;
+
+        // Два шага с половинным шагом
+        method(x_half, v_half, step_half);
+        method(x_half, v_half, step_half);
+
+        // Один шаг с полным шагом
+        double x_full = x, v_full = v;
+        method(x_full, v_full, step);
+
+        // Локальная погрешность
+        double S = (v_half - v_full) / (pow(2.0, 4) - 1.0);
+        row.OLP_S = std::abs(S);
+
+        // Контроль погрешности
+        if (std::abs(S) > tolerance) {
+            step /= 2.0;
+            row.divisions += 1;
+            continue;
+        } else if (std::abs(S) < tolerance / pow(2, 5)) {
+            step *= 2.0;
+            row.doublings += 1;
+        }
+
+        row.V_i_hat = v_full;
+        row.V_diff = std::abs(v_half - v_full);
+
+        x = x_full;
+        v = v_full;
+
+        results.append(row);
+
+        series_ui->append(x, U_i);
+        series_vi->append(x, v);
+    }
+
+    m_results = results;
+}
+
+
+
 
 QVector<DataRow> RungeKutt::TestTaskModel::getResults()
 {

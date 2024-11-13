@@ -23,6 +23,7 @@ public:
     Parametres m_parametres;
 
     void runRK4(double x, double v, QtCharts::QLineSeries *series_ui, QtCharts::QLineSeries *series_vi);
+    void runRK4WithAdaptiveStep(double x, double v, QtCharts::QLineSeries *series_ui, QtCharts::QLineSeries *series_vi);
 
 private:
 
