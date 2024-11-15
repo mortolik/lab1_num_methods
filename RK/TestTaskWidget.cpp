@@ -18,17 +18,23 @@ namespace RungeKutt
 RungeKutt::TestTaskWidget::TestTaskWidget(TestTaskModel *model, QWidget *parent)
     : QWidget(parent), m_model(model)
 {
-    QVBoxLayout *mainLayout = new QVBoxLayout(this);
-    QTabWidget *tabWidget = new QTabWidget(this);
+    QVBoxLayout *mainLayout = new QVBoxLayout(this);  // Главный вертикальный layout
 
+    // Создаем QTabWidget и добавляем вкладки
+    QTabWidget *tabWidget = new QTabWidget(this);
     m_tableWidget = createTableWidget();
     tabWidget->addTab(m_tableWidget, "Таблица");
 
     m_chartView = createChartView();
     tabWidget->addTab(m_chartView, "График");
 
+    // Создаем referenceWidget
     QWidget *referenceWidget = new QWidget(this);
     QVBoxLayout *referenceLayout = new QVBoxLayout(referenceWidget);
+    referenceLayout->setSpacing(3);  // Устанавливаем минимальный промежуток между метками
+
+    QLabel* header = new QLabel();
+    header->setText("<b>Справка</b>");
 
     m_iterationsLabel = new QLabel(referenceWidget);
     m_distanceLabel = new QLabel(referenceWidget);
@@ -39,6 +45,8 @@ RungeKutt::TestTaskWidget::TestTaskWidget(TestTaskModel *model, QWidget *parent)
     m_minStepLabel = new QLabel(referenceWidget);
     m_maxErrorLabel = new QLabel(referenceWidget);
 
+    referenceLayout->addWidget(header);
+    referenceLayout->addSpacing(10);
     referenceLayout->addWidget(m_iterationsLabel);
     referenceLayout->addWidget(m_distanceLabel);
     referenceLayout->addWidget(m_maxOLPLabel);
@@ -48,16 +56,37 @@ RungeKutt::TestTaskWidget::TestTaskWidget(TestTaskModel *model, QWidget *parent)
     referenceLayout->addWidget(m_minStepLabel);
     referenceLayout->addWidget(m_maxErrorLabel);
 
-    referenceWidget->setLayout(referenceLayout);
-    tabWidget->addTab(referenceWidget, "Справка");
+    // Устанавливаем выравнивание по верхнему краю для referenceLayout
+    referenceLayout->setAlignment(Qt::AlignTop);  // Выравнивание по верхнему краю
+    // Создаем QFrame для referenceWidget с рамкой
+    QFrame *referenceFrame = new QFrame();
+    referenceFrame->setFrameShape(QFrame::Box);  // Рамка вокруг referenceWidget
+    referenceFrame->setFrameShadow(QFrame::Sunken);  // Тень рамки
 
-    mainLayout->addWidget(tabWidget);
+    // Добавляем referenceWidget в рамку
+    referenceFrame->setLayout(referenceLayout);
 
+    // Устанавливаем размеры для referenceFrame
+    referenceFrame->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);  // Высота зависит от содержимого
+    referenceFrame->setFixedWidth(210);
+
+    // Создаем QHBoxLayout и добавляем referenceFrame и tabWidget
+    QHBoxLayout *tabLayout = new QHBoxLayout();
+    tabLayout->addWidget(referenceFrame);  // Добавляем referenceFrame (с рамкой) слева
+    tabLayout->addWidget(tabWidget);       // Добавляем tabWidget справа
+
+    // Устанавливаем выравнивание по верхнему краю для tabLayout
+    tabLayout->setAlignment(referenceFrame, Qt::AlignTop | Qt::AlignLeft);
+
+
+    mainLayout->addLayout(tabLayout);  // Добавляем tabLayout в основной layout
+
+    // Добавляем кнопку для запуска расчета
     QPushButton *calculateButton = new QPushButton("Запустить расчет", this);
     connect(calculateButton, &QPushButton::clicked, this, &TestTaskWidget::calculateResults);
     mainLayout->addWidget(calculateButton);
 
-    setLayout(mainLayout);
+    setLayout(mainLayout);  // Устанавливаем основной layout
 }
 
     QTableWidget *RungeKutt::TestTaskWidget::createTableWidget() {
