@@ -138,7 +138,7 @@ void RungeKutt::TestTaskModel::runRK4WithAdaptiveStep(double x, double v, QtChar
 
             // Локальная погрешность
             double S = (v_half - v_full) / (pow(2.0, 4) - 1.0);
-            row.OLP_S = std::abs(S);
+            row.OLP_S = std::abs(S)*pow(2.0, 4);
 
             if (std::abs(S) > tolerance) {
                 // Деление шага
