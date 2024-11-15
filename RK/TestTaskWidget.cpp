@@ -68,7 +68,7 @@ RungeKutt::TestTaskWidget::TestTaskWidget(TestTaskModel *model, QWidget *parent)
 
     // Устанавливаем размеры для referenceFrame
     referenceFrame->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);  // Высота зависит от содержимого
-    referenceFrame->setFixedWidth(210);
+    referenceFrame->setFixedWidth(230);
 
     // Создаем QHBoxLayout и добавляем referenceFrame и tabWidget
     QHBoxLayout *tabLayout = new QHBoxLayout();

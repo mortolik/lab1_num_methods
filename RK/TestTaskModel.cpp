@@ -79,7 +79,22 @@ void RungeKutt::TestTaskModel::runRK4(double x, double v, QtCharts::QLineSeries 
     double old_v = v;
     bool exit_flag = false;
 
-    for (int i = 0; i < m_parametres.MAX_STEPS; ++i) {
+    // Сброс значений структуры ReferenceInfo
+    referenceInfo = ReferenceInfo{
+        0,                                      // iterationsCount
+        0.0,                                   // distanceToBoundary
+        0.0,                                   // maxOLP
+        0,                                      // stepDoublingCount
+        0,                                      // stepReductionCount
+        0.0,                                   // maxStep
+        0.0,                                   // maxStepX
+        0.0,                                   // minStep
+        std::numeric_limits<double>::max(),    // minStepX
+        0.0,                                   // maxError
+        0.0                                    // maxErrorX
+    };
+
+    for (int i = 1; i < m_parametres.MAX_STEPS; ++i) {
         // Сохранение данных для таблицы
         DataRow row;
         row.index = i;
@@ -97,6 +112,21 @@ void RungeKutt::TestTaskModel::runRK4(double x, double v, QtCharts::QLineSeries 
         // Добавляем данные на график
         series_ui->append(x, U_i);  // Точное решение
         series_vi->append(x, v);    // Численное решение
+
+        // Обновление данных для справки
+        referenceInfo.iterationsCount++;
+        if (row.U_V_diff > referenceInfo.maxError) {
+            referenceInfo.maxError = row.U_V_diff;
+            referenceInfo.maxErrorX = x;
+        }
+        if (step > referenceInfo.maxStep) {
+            referenceInfo.maxStep = step;
+            referenceInfo.maxStepX = x;
+        }
+        if (step < referenceInfo.minStep) {
+            referenceInfo.minStep = step;
+            referenceInfo.minStepX = x;
+        }
 
         // Шаг метода Рунге-Кутта
         method(x, v, step);
@@ -118,8 +148,12 @@ void RungeKutt::TestTaskModel::runRK4(double x, double v, QtCharts::QLineSeries 
         old_v = v;
     }
 
+    // Финальная информация для справки
+    referenceInfo.distanceToBoundary = m_parametres.B - old_x;
     m_results = results;
 }
+
+
 
 void RungeKutt::TestTaskModel::runRK4WithAdaptiveStep(double x, double v, QtCharts::QLineSeries *series_ui, QtCharts::QLineSeries *series_vi) {
     series_ui->clear();
