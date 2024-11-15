@@ -32,6 +32,8 @@ namespace RungeKutt
         int stepDoublingCount;
         int stepReductionCount;
         double maxStep;
+        double maxStepX;
+        double minStepX;
         double minStep;
         double maxError;
         double maxErrorX;
