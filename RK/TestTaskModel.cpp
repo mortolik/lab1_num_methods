@@ -111,45 +111,53 @@ void RungeKutt::TestTaskModel::runRK4WithAdaptiveStep(double x, double v, QtChar
     double step = m_parametres.STEP;
     double tolerance = m_parametres.EPS;
     double C = constanta(m_parametres.A, m_parametres.START_U);
+    double x_half, v_half, x_full, v_full;
 
-
-    for (int i = 1; i < m_parametres.MAX_STEPS && x <= m_parametres.B; ++i) {
+    for (int i = 1; i < m_parametres.MAX_STEPS; ++i) {
         DataRow row;
         row.index = i;
         row.STEP_i = step;
         row.divisions = 0;
         row.doublings = 0;
 
-        double x_half = x, v_half = v;
-        double step_half = step / 2.0;
 
-        // Два шага с половинным шагом
-        method(x_half, v_half, step_half);
-        method(x_half, v_half, step_half);
+        bool validStep = false; // Флаг для проверки корректности шага
+        while (!validStep) {
+            x_half = x;
+            v_half = v;
+            double step_half = step / 2.0;
 
-        // Один шаг с полным шагом
-        double x_full = x, v_full = v;
-        method(x_full, v_full, step);
+            // Два шага с половинным шагом
+            method(x_half, v_half, step_half);
+            method(x_half, v_half, step_half);
 
-        // Локальная погрешность
-        double S = (v_half - v_full) / (pow(2.0, 4) - 1.0);
-        row.OLP_S = std::abs(S);
+            // Один шаг с полным шагом
+            x_full = x;
+            v_full = v;
+            method(x_full, v_full, step);
 
-        // Контроль погрешности
-        if (std::abs(S) > tolerance) {
-            step /= 2.0;
-            row.divisions += 1;
-            continue;
-        } else if (std::abs(S) < tolerance / pow(2, 5)) {
-            step *= 2.0;
-            row.doublings += 1;
+            // Локальная погрешность
+            double S = (v_half - v_full) / (pow(2.0, 4) - 1.0);
+            row.OLP_S = std::abs(S);
+
+            if (std::abs(S) > tolerance) {
+                // Деление шага
+                step /= 2.0;
+                row.divisions += 1;
+            } else if (std::abs(S) < tolerance / pow(2, 5)) {
+                // Удвоение шага
+                step *= 2.0;
+                row.doublings += 1;
+                validStep = true; // Шаг подходит, выходим из цикла
+            } else {
+                validStep = true; // Шаг подходит, выходим из цикла
+            }
         }
 
-        // Присваиваем V_i_hat результат с половинным шагом
+        // Обновляем значения после корректного шага
         row.V_i_hat = v_half;
         row.V_diff = std::abs(v_half - v_full);
 
-        // Обновляем для следующего шага
         x = x_full;
         v = v_full;
 
@@ -158,12 +166,16 @@ void RungeKutt::TestTaskModel::runRK4WithAdaptiveStep(double x, double v, QtChar
 
         double U_i = solution(x, C);
         row.U_i = U_i;
-
         row.U_V_diff = std::abs(U_i - v);
 
         results.append(row);
         series_ui->append(x, U_i);
         series_vi->append(x, v);
+
+        // Проверка выхода за границы
+        if (x >= m_parametres.B - m_parametres.BOUND_EPS) {
+            break;
+        }
     }
 
     m_results = results;
