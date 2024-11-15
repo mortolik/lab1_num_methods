@@ -35,7 +35,7 @@ double TestTaskModel::solution(double x, double C)
     return exp(2 * x) * C;
 }
 
-void TestTaskModel::updateReferenceInfo(int iterations, double distance, double maxOLP, int doublings, int reductions, double maxStep, double minStep, double maxError, double maxErrorX)
+void TestTaskModel::updateReferenceInfo(int iterations, double distance, double maxOLP, int doublings, int reductions, double maxStep, double maxStepX, double minStepX, double minStep, double maxError, double maxErrorX)
 {
     referenceInfo.iterationsCount = iterations;
     referenceInfo.distanceToBoundary = distance;
@@ -43,6 +43,8 @@ void TestTaskModel::updateReferenceInfo(int iterations, double distance, double 
     referenceInfo.stepDoublingCount = doublings;
     referenceInfo.stepReductionCount = reductions;
     referenceInfo.maxStep = maxStep;
+    referenceInfo.maxStepX = maxStepX;
+    referenceInfo.minStepX = minStepX;
     referenceInfo.minStep = minStep;
     referenceInfo.maxError = maxError;
     referenceInfo.maxErrorX = maxErrorX;
@@ -133,6 +135,8 @@ void RungeKutt::TestTaskModel::runRK4WithAdaptiveStep(double x, double v, QtChar
     int doublingCount = 0;
     int reductionCount = 0;
     double maxStep = step;
+    double maxStepX = x;
+    double minStepX = x;
     double minStep = step;
     double maxOLP = 0.0;
     double maxError = 0.0;
@@ -201,8 +205,16 @@ void RungeKutt::TestTaskModel::runRK4WithAdaptiveStep(double x, double v, QtChar
             maxErrorX = x;
         }
 
-        if (step > maxStep) maxStep = step;
-        if (step < minStep) minStep = step;
+        if (step > maxStep)
+        {
+            maxStep = step;
+            maxStepX = x + step;
+        }
+        if (step < minStep)
+        {
+            minStep = step;
+            minStepX = x;
+        }
 
         results.append(row);
         series_ui->append(x, U_i);
@@ -223,6 +235,8 @@ void RungeKutt::TestTaskModel::runRK4WithAdaptiveStep(double x, double v, QtChar
     referenceInfo.stepDoublingCount = doublingCount;
     referenceInfo.stepReductionCount = reductionCount;
     referenceInfo.maxStep = maxStep;
+    referenceInfo.maxStepX = maxStepX;
+    referenceInfo.minStepX = minStepX;
     referenceInfo.minStep = minStep;
     referenceInfo.maxError = maxError;
     referenceInfo.maxErrorX = maxErrorX;

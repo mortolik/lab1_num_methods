@@ -38,7 +38,8 @@ private:
     QVector<DataRow> m_results;
 
     ReferenceInfo referenceInfo;
-    void updateReferenceInfo(int iterations, double distance, double maxOLP, int doublings, int reductions, double maxStep, double minStep, double maxError, double maxErrorX);
+    void updateReferenceInfo(int iterations, double distance, double maxOLP, int doublings, int reductions, double maxStep, double maxStepX, double minStepX,
+                             double minStep, double maxError, double maxErrorX);
 
 };
 }

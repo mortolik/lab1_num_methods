@@ -107,9 +107,9 @@ RungeKutt::TestTaskWidget::TestTaskWidget(TestTaskModel *model, QWidget *parent)
         m_maxOLPLabel->setText("Макс ОЛП: " + QString::number(reference.maxOLP));
         m_doublingsLabel->setText("Удвоения: " + QString::number(reference.stepDoublingCount));
         m_reductionsLabel->setText("Деления: " + QString::number(reference.stepReductionCount));
-        m_maxStepLabel->setText("Макс шаг: " + QString::number(reference.maxStep) + " при X = " + QString::number(reference.maxErrorX));
-        m_minStepLabel->setText("Мин шаг: " + QString::number(reference.minStep));
-        m_maxErrorLabel->setText("Макс ошибка: " + QString::number(reference.maxError));
+        m_maxStepLabel->setText("Макс шаг: " + QString::number(reference.maxStep) + " при X = " + QString::number(reference.maxStepX));
+        m_minStepLabel->setText("Мин шаг: " + QString::number(reference.minStep) + " при X = " + QString::number(reference.minStepX));
+        m_maxErrorLabel->setText("Макс ошибка: " + QString::number(reference.maxError)+ " при X = " + QString::number(reference.maxErrorX));
     }
 
 
