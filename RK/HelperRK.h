@@ -25,4 +25,15 @@ namespace RungeKutt
         double U_i = 0;           // U_i
         double U_V_diff = 0;      // |U_i - V_i|
     };
+    struct ReferenceInfo {
+        int iterationsCount;
+        double distanceToBoundary;
+        double maxOLP;
+        int stepDoublingCount;
+        int stepReductionCount;
+        double maxStep;
+        double minStep;
+        double maxError;
+        double maxErrorX;
+    };
 }

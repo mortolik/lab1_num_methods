@@ -35,6 +35,19 @@ double TestTaskModel::solution(double x, double C)
     return exp(2 * x) * C;
 }
 
+void TestTaskModel::updateReferenceInfo(int iterations, double distance, double maxOLP, int doublings, int reductions, double maxStep, double minStep, double maxError, double maxErrorX)
+{
+    referenceInfo.iterationsCount = iterations;
+    referenceInfo.distanceToBoundary = distance;
+    referenceInfo.maxOLP = maxOLP;
+    referenceInfo.stepDoublingCount = doublings;
+    referenceInfo.stepReductionCount = reductions;
+    referenceInfo.maxStep = maxStep;
+    referenceInfo.minStep = minStep;
+    referenceInfo.maxError = maxError;
+    referenceInfo.maxErrorX = maxErrorX;
+}
+
 void RungeKutt::TestTaskModel::method(double &X, double &V, double STEP)
 {
     double k1 = f(X, V);
@@ -46,6 +59,9 @@ void RungeKutt::TestTaskModel::method(double &X, double &V, double STEP)
     X += STEP;
 }
 
+ReferenceInfo TestTaskModel::getReference() const {
+    return referenceInfo;
+}
 
 void RungeKutt::TestTaskModel::runRK4(double x, double v, QtCharts::QLineSeries *series_ui, QtCharts::QLineSeries *series_vi) {
     series_ui->clear();
@@ -113,6 +129,14 @@ void RungeKutt::TestTaskModel::runRK4WithAdaptiveStep(double x, double v, QtChar
     double C = constanta(m_parametres.A, m_parametres.START_U);
     double x_half, v_half, x_full, v_full;
 
+    // Переменные для справочной информации
+    int doublingCount = 0;
+    int reductionCount = 0;
+    double maxStep = step;
+    double minStep = step;
+    double maxOLP = 0.0;
+    double maxError = 0.0;
+    double maxErrorX = x;
     for (int i = 1; i < m_parametres.MAX_STEPS; ++i) {
         DataRow row;
         row.index = i;
@@ -135,6 +159,7 @@ void RungeKutt::TestTaskModel::runRK4WithAdaptiveStep(double x, double v, QtChar
             x_full = x;
             v_full = v;
             method(x_full, v_full, step);
+        if (row.OLP_S > maxOLP) maxOLP = row.OLP_S;  // Обновляем максимальное значение ОЛП
 
             // Локальная погрешность
             double S = (v_half - v_full) / (pow(2.0, 4) - 1.0);
@@ -144,10 +169,12 @@ void RungeKutt::TestTaskModel::runRK4WithAdaptiveStep(double x, double v, QtChar
                 // Деление шага
                 step /= 2.0;
                 row.divisions += 1;
+            	reductionCount++;
             } else if (std::abs(S) < tolerance / pow(2, 5)) {
                 // Удвоение шага
                 step *= 2.0;
                 row.doublings += 1;
+            	doublingCount++;
                 validStep = true; // Шаг подходит, выходим из цикла
             } else {
                 validStep = true; // Шаг подходит, выходим из цикла
@@ -168,6 +195,15 @@ void RungeKutt::TestTaskModel::runRK4WithAdaptiveStep(double x, double v, QtChar
         row.U_i = U_i;
         row.U_V_diff = std::abs(U_i - v);
 
+        // Обновляем максимальную ошибку и X при максимальной разнице между U и V
+        if (row.U_V_diff > maxError) {
+            maxError = row.U_V_diff;
+            maxErrorX = x;
+        }
+
+        if (step > maxStep) maxStep = step;
+        if (step < minStep) minStep = step;
+
         results.append(row);
         series_ui->append(x, U_i);
         series_vi->append(x, v);
@@ -179,6 +215,17 @@ void RungeKutt::TestTaskModel::runRK4WithAdaptiveStep(double x, double v, QtChar
     }
 
     m_results = results;
+
+    // Обновляем справочную информацию
+    referenceInfo.iterationsCount = results.size();
+    referenceInfo.distanceToBoundary = m_parametres.B - x;
+    referenceInfo.maxOLP = maxOLP;
+    referenceInfo.stepDoublingCount = doublingCount;
+    referenceInfo.stepReductionCount = reductionCount;
+    referenceInfo.maxStep = maxStep;
+    referenceInfo.minStep = minStep;
+    referenceInfo.maxError = maxError;
+    referenceInfo.maxErrorX = maxErrorX;
 }
 
 QVector<DataRow> RungeKutt::TestTaskModel::getResults()

@@ -25,6 +25,8 @@ public:
     void runRK4(double x, double v, QtCharts::QLineSeries *series_ui, QtCharts::QLineSeries *series_vi);
     void runRK4WithAdaptiveStep(double x, double v, QtCharts::QLineSeries *series_ui, QtCharts::QLineSeries *series_vi);
 
+    ReferenceInfo getReference() const;
+
 private:
 
     double f(double x, double v);
@@ -35,12 +37,8 @@ private:
 
     QVector<DataRow> m_results;
 
-
-    double m_a;
-    double m_x0;
-    double m_t0;
-    double m_dt;
-    int m_steps;
+    ReferenceInfo referenceInfo;
+    void updateReferenceInfo(int iterations, double distance, double maxOLP, int doublings, int reductions, double maxStep, double minStep, double maxError, double maxErrorX);
 
 };
 }

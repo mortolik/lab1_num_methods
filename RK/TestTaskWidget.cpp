@@ -18,28 +18,47 @@ namespace RungeKutt
 RungeKutt::TestTaskWidget::TestTaskWidget(TestTaskModel *model, QWidget *parent)
     : QWidget(parent), m_model(model)
 {
-        QVBoxLayout *mainLayout = new QVBoxLayout(this);
+    QVBoxLayout *mainLayout = new QVBoxLayout(this);
+    QTabWidget *tabWidget = new QTabWidget(this);
 
-        // Создание вкладок
-        QTabWidget *tabWidget = new QTabWidget(this);
+    m_tableWidget = createTableWidget();
+    tabWidget->addTab(m_tableWidget, "Таблица");
 
-        // Вкладка с таблицей
-        m_tableWidget = createTableWidget();
-        tabWidget->addTab(m_tableWidget, "Таблица");
+    m_chartView = createChartView();
+    tabWidget->addTab(m_chartView, "График");
 
-        // Вкладка с графиком
-        m_chartView = createChartView();
-        tabWidget->addTab(m_chartView, "График");
+    QWidget *referenceWidget = new QWidget(this);
+    QVBoxLayout *referenceLayout = new QVBoxLayout(referenceWidget);
 
-        mainLayout->addWidget(tabWidget);
+    m_iterationsLabel = new QLabel(referenceWidget);
+    m_distanceLabel = new QLabel(referenceWidget);
+    m_maxOLPLabel = new QLabel(referenceWidget);
+    m_doublingsLabel = new QLabel(referenceWidget);
+    m_reductionsLabel = new QLabel(referenceWidget);
+    m_maxStepLabel = new QLabel(referenceWidget);
+    m_minStepLabel = new QLabel(referenceWidget);
+    m_maxErrorLabel = new QLabel(referenceWidget);
 
-        // Кнопка для запуска расчетов
-        QPushButton *calculateButton = new QPushButton("Запустить расчет", this);
-        connect(calculateButton, &QPushButton::clicked, this, &TestTaskWidget::calculateResults);
-        mainLayout->addWidget(calculateButton);
+    referenceLayout->addWidget(m_iterationsLabel);
+    referenceLayout->addWidget(m_distanceLabel);
+    referenceLayout->addWidget(m_maxOLPLabel);
+    referenceLayout->addWidget(m_doublingsLabel);
+    referenceLayout->addWidget(m_reductionsLabel);
+    referenceLayout->addWidget(m_maxStepLabel);
+    referenceLayout->addWidget(m_minStepLabel);
+    referenceLayout->addWidget(m_maxErrorLabel);
 
-        setLayout(mainLayout);
-    }
+    referenceWidget->setLayout(referenceLayout);
+    tabWidget->addTab(referenceWidget, "Справка");
+
+    mainLayout->addWidget(tabWidget);
+
+    QPushButton *calculateButton = new QPushButton("Запустить расчет", this);
+    connect(calculateButton, &QPushButton::clicked, this, &TestTaskWidget::calculateResults);
+    mainLayout->addWidget(calculateButton);
+
+    setLayout(mainLayout);
+}
 
     QTableWidget *RungeKutt::TestTaskWidget::createTableWidget() {
         QTableWidget *tableWidget = new QTableWidget(0, 11, this);
@@ -80,6 +99,19 @@ RungeKutt::TestTaskWidget::TestTaskWidget(TestTaskModel *model, QWidget *parent)
         return chartView;
     }
 
+    void TestTaskWidget::updateReferenceInfo()
+    {
+        auto reference = m_model->getReference();
+        m_iterationsLabel->setText("Итерации: " + QString::number(reference.iterationsCount));
+        m_distanceLabel->setText("Разница с границей: " + QString::number(reference.distanceToBoundary));
+        m_maxOLPLabel->setText("Макс ОЛП: " + QString::number(reference.maxOLP));
+        m_doublingsLabel->setText("Удвоения: " + QString::number(reference.stepDoublingCount));
+        m_reductionsLabel->setText("Деления: " + QString::number(reference.stepReductionCount));
+        m_maxStepLabel->setText("Макс шаг: " + QString::number(reference.maxStep) + " при X = " + QString::number(reference.maxErrorX));
+        m_minStepLabel->setText("Мин шаг: " + QString::number(reference.minStep));
+        m_maxErrorLabel->setText("Макс ошибка: " + QString::number(reference.maxError));
+    }
+
 
 
     void RungeKutt::TestTaskWidget::setUseAdaptiveMethod(bool useAdaptiveMethod) {
@@ -114,6 +146,7 @@ RungeKutt::TestTaskWidget::TestTaskWidget(TestTaskModel *model, QWidget *parent)
 
         m_chartView->chart()->axisY()->setRange(minY, maxY);
         updateTable();
+        updateReferenceInfo();  // Обновление справочной информации
     }
 
 
