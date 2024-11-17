@@ -75,6 +75,11 @@ FirstTaskWidget::FirstTaskWidget(FirstTaskModel *model, QWidget *parent)
     setLayout(mainLayout);
 }
 
+void FirstTaskWidget::setUseAdaptiveMethod(bool useAdaptiveMethod)
+{
+    m_useAdaptiveMethod = useAdaptiveMethod;
+}
+
 QTableWidget *FirstTaskWidget::createTableWidget() {
     QTableWidget *tableWidget = new QTableWidget(0, 9, this);
 
