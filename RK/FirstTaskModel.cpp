@@ -8,7 +8,7 @@ using namespace QtCharts;
 
 namespace RungeKutt
 {
-FirstTask::FirstTask(double A,
+FirstTaskModel::FirstTaskModel(double A,
                      double B,
                      double Step,
                      int MaxSteps,
@@ -21,7 +21,7 @@ FirstTask::FirstTask(double A,
 
 }
 
-void FirstTask::runRK4(double x, double v, QtCharts::QLineSeries *series_ui, QtCharts::QLineSeries *series_vi)
+void FirstTaskModel::runRK4(double x, double v, QtCharts::QLineSeries *series_ui, QtCharts::QLineSeries *series_vi)
 {
     series_vi->clear();
 
@@ -60,7 +60,7 @@ void FirstTask::runRK4(double x, double v, QtCharts::QLineSeries *series_ui, QtC
     m_results = results;
 }
 
-void FirstTask::runRK4WithAdaptiveStep(double x, double v, QtCharts::QLineSeries *series_ui, QtCharts::QLineSeries *series_vi)
+void FirstTaskModel::runRK4WithAdaptiveStep(double x, double v, QtCharts::QLineSeries *series_ui, QtCharts::QLineSeries *series_vi)
 {
     series_ui->clear();
     series_vi->clear();
@@ -168,7 +168,7 @@ void FirstTask::runRK4WithAdaptiveStep(double x, double v, QtCharts::QLineSeries
     referenceInfo.minStep = minStep;
 }
 
-double FirstTask::f(double x, double v)
+double FirstTaskModel::f(double x, double v)
 {
     return (pow(x, 3.0) + 1) / (pow(x, 5.0) + 1) * pow(v, 2.0) + v - pow(v, 3.0)*sin(10.0*x);
 }

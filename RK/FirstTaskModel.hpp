@@ -3,11 +3,11 @@
 #include "TestTaskModel.hpp"
 namespace RungeKutt
 {
-class FirstTask : public RungeKutt::TestTaskModel
+class FirstTaskModel : public RungeKutt::TestTaskModel
 {
     Q_OBJECT
 public:
-    explicit FirstTask(double A,
+    explicit FirstTaskModel(double A,
                        double B,
                        double Step,
                        int MaxSteps,
