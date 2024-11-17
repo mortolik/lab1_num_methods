@@ -95,11 +95,8 @@ QTableWidget *FirstTaskWidget::createTableWidget() {
 QChartView *FirstTaskWidget::createChartView() {
     QChart *chart = new QChart();
     m_seriesSolution = new QLineSeries();
-    m_seriesSolution->setName("Численное решение V(x)");
     m_seriesDerivative = new QLineSeries();
-    m_seriesDerivative->setName("Контроль V^");
-
-    chart->addSeries(m_seriesSolution);
+    m_seriesDerivative->setName("Численное решение V(x)");
     chart->addSeries(m_seriesDerivative);
     chart->setTitle("График решения V(x)");
 
