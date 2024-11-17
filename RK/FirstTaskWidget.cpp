@@ -131,12 +131,19 @@ void FirstTaskWidget::calculateResults() {
         m_model->runRK4(x0, v0, m_seriesSolution, m_seriesDerivative);
     }
 
-    m_chartView->chart()->axisX()->setRange(m_model->m_parametres.A, m_model->m_parametres.B);
+    // Определение диапазона по оси X
+    double maxX = m_model->m_parametres.A;
+    for (const auto &point : m_seriesSolution->points()) {
+        maxX = std::max(maxX, point.x());
+    }
+    for (const auto &point : m_seriesDerivative->points()) {
+        maxX = std::max(maxX, point.x());
+    }
+    m_chartView->chart()->axisX()->setRange(m_model->m_parametres.A, maxX);
 
-    // Обновление диапазонов осей и построение графиков
+    // Определение диапазона по оси Y
     double minY = std::numeric_limits<double>::max();
     double maxY = std::numeric_limits<double>::lowest();
-
     for (const auto &point : m_seriesSolution->points()) {
         minY = std::min(minY, point.y());
         maxY = std::max(maxY, point.y());
@@ -145,11 +152,13 @@ void FirstTaskWidget::calculateResults() {
         minY = std::min(minY, point.y());
         maxY = std::max(maxY, point.y());
     }
-
     m_chartView->chart()->axisY()->setRange(minY, maxY);
+
+    // Обновление таблицы и справочной информации
     updateTable();
-    updateReferenceInfo();  // Обновление справочной информации
+    updateReferenceInfo();
 }
+
 
 void FirstTaskWidget::updateTable() {
     const auto results = m_model->getResults();
