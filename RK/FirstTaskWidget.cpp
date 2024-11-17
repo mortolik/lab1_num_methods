@@ -124,14 +124,34 @@ void FirstTaskWidget::updateReferenceInfo() {
 }
 
 void FirstTaskWidget::calculateResults() {
+    // Запуск нужного метода в зависимости от флага
     double x0 = m_model->m_parametres.A;
     double v0 = m_model->m_parametres.START_U;
 
-    m_model->runRK4WithAdaptiveStep(x0, v0, m_seriesSolution, m_seriesDerivative);
+    if (m_useAdaptiveMethod) {
+        m_model->runRK4WithAdaptiveStep(x0, v0, m_seriesSolution, m_seriesDerivative);
+    } else {
+        m_model->runRK4(x0, v0, m_seriesSolution, m_seriesDerivative);
+    }
+
     m_chartView->chart()->axisX()->setRange(m_model->m_parametres.A, m_model->m_parametres.B);
 
+    // Обновление диапазонов осей и построение графиков
+    double minY = std::numeric_limits<double>::max();
+    double maxY = std::numeric_limits<double>::lowest();
+
+    for (const auto &point : m_seriesSolution->points()) {
+        minY = std::min(minY, point.y());
+        maxY = std::max(maxY, point.y());
+    }
+    for (const auto &point : m_seriesDerivative->points()) {
+        minY = std::min(minY, point.y());
+        maxY = std::max(maxY, point.y());
+    }
+
+    m_chartView->chart()->axisY()->setRange(minY, maxY);
     updateTable();
-    updateReferenceInfo();
+    updateReferenceInfo();  // Обновление справочной информации
 }
 
 void FirstTaskWidget::updateTable() {
