@@ -37,5 +37,7 @@ namespace RungeKutt
         double minStep;
         double maxError;
         double maxErrorX;
+
+        bool IS_INF = false;
     };
 }
