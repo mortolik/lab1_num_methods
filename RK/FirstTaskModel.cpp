@@ -69,6 +69,7 @@ void FirstTaskModel::runRK4WithAdaptiveStep(double x, double v, QtCharts::QLineS
     double step = m_parametres.STEP;
     double tolerance = m_parametres.EPS;
     double x_half, v_half, x_full, v_full;
+    const double MIN_STEP_THRESHOLD = 1e-9; // Минимально допустимый шаг
 
     // Переменные для справочной информации
     int doublingCount = 0;
@@ -123,6 +124,16 @@ void FirstTaskModel::runRK4WithAdaptiveStep(double x, double v, QtCharts::QLineS
             } else {
                 validStep = true; // Шаг подходит, выходим из цикла
             }
+            if (x + step > m_parametres.B) {
+                step = m_parametres.B - x; // Корректируем шаг
+                method(x, v, step); // Делаем последний шаг до границы
+                break;
+            }
+
+            // Проверка на минимальный шаг
+            if (step < MIN_STEP_THRESHOLD) {
+                validStep = true; // Завершаем адаптацию шага
+            }
         }
 
         // Обновляем значения после корректного шага
@@ -149,7 +160,7 @@ void FirstTaskModel::runRK4WithAdaptiveStep(double x, double v, QtCharts::QLineS
         series_vi->append(x, v);
 
         // Проверка выхода за границы
-        if (x >= m_parametres.B - m_parametres.BOUND_EPS) {
+        if (x >= m_parametres.B - m_parametres.BOUND_EPS || step < MIN_STEP_THRESHOLD) {
             break;
         }
     }
@@ -167,6 +178,7 @@ void FirstTaskModel::runRK4WithAdaptiveStep(double x, double v, QtCharts::QLineS
     referenceInfo.minStepX = minStepX;
     referenceInfo.minStep = minStep;
 }
+
 
 double FirstTaskModel::f(double x, double v)
 {
