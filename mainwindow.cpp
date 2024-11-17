@@ -41,6 +41,7 @@ QWidget* MainWindow::createTestTaskTab() {
     QWidget *testTaskTab = new QWidget(this);
 
     QVBoxLayout *tabLayout = new QVBoxLayout(testTaskTab);
+    tabLayout->setAlignment(Qt::AlignTop);
 
     // Горизонтальный макет для параметров
     QHBoxLayout *paramLayout = new QHBoxLayout();
@@ -107,6 +108,7 @@ QWidget* MainWindow::createFirstTaskTab() {
     QWidget *firstTaskTab = new QWidget(this);
 
     QVBoxLayout *tabLayout = new QVBoxLayout(firstTaskTab);
+    tabLayout->setAlignment(Qt::AlignTop);
 
     // Горизонтальный макет для параметров
     QHBoxLayout *paramLayout = new QHBoxLayout();
