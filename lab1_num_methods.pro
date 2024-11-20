@@ -13,6 +13,7 @@ CONFIG += c++17
 SOURCES += \
     RK/FirstTaskModel.cpp \
     RK/FirstTaskWidget.cpp \
+    RK/SecondTaskModel.cpp \
     RK/TestTaskModel.cpp \
     RK/TestTaskWidget.cpp \
     main.cpp \
@@ -23,6 +24,7 @@ HEADERS += \
     RK/FirstTaskModel.hpp \
     RK/FirstTaskWidget.hpp \
     RK/HelperRK.h \
+    RK/SecondTaskModel.hpp \
     RK/TestTaskModel.hpp \
     RK/TestTaskWidget.hpp \
     mainwindow.hpp

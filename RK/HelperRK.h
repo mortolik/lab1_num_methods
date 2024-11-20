@@ -6,6 +6,7 @@ namespace RungeKutt
     {
         double A;
         double B;
+        double C;
         double STEP;
         int MAX_STEPS;
         double EPS;
