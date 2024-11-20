@@ -78,6 +78,8 @@ void RungeKutt::TestTaskModel::runRK4(double x, double v, QtCharts::QLineSeries 
     double old_x = x;
     double old_v = v;
     bool exit_flag = false;
+    series_ui->append(x, v);  // Точное решение
+    series_vi->append(x, v);    // Численное решение
 
     // Сброс значений структуры ReferenceInfo
     referenceInfo = ReferenceInfo{
@@ -158,6 +160,8 @@ void RungeKutt::TestTaskModel::runRK4(double x, double v, QtCharts::QLineSeries 
 void RungeKutt::TestTaskModel::runRK4WithAdaptiveStep(double x, double v, QtCharts::QLineSeries *series_ui, QtCharts::QLineSeries *series_vi) {
     series_ui->clear();
     series_vi->clear();
+    series_ui->append(x, v);  // Точное решение
+    series_vi->append(x, v);    // Численное решение
 
     QVector<DataRow> results;
     double step = m_parametres.STEP;

@@ -24,6 +24,7 @@ FirstTaskModel::FirstTaskModel(double A,
 void FirstTaskModel::runRK4(double x, double v, QtCharts::QLineSeries *series_ui, QtCharts::QLineSeries *series_vi)
 {
     series_vi->clear();
+    series_vi->append(x, v);
 
     QVector<RungeKutt::DataRow> results;
 
@@ -64,6 +65,7 @@ void FirstTaskModel::runRK4WithAdaptiveStep(double x, double v, QtCharts::QLineS
 {
     series_ui->clear();
     series_vi->clear();
+    series_vi->append(x, v);
 
     QVector<DataRow> results;
     double step = m_parametres.STEP;
