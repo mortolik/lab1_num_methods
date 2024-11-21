@@ -6,12 +6,14 @@ namespace RungeKutt
     {
         double A;
         double B;
-        double C;
         double STEP;
         int MAX_STEPS;
         double EPS;
         double BOUND_EPS;
         double START_U;
+        double a;
+        double b;
+        double c;
     };
     struct DataRow {
         int index = 0;            // i
@@ -25,6 +27,14 @@ namespace RungeKutt
         int doublings = 0;        // Кол-во удвоений
         double U_i = 0;           // U_i
         double U_V_diff = 0;      // |U_i - V_i|
+
+        // Для второй задачи
+        double V0_i = 0;          // V0_i
+        double V1_i = 0;          // V1_i
+        double V0_i_hat = 0;      // V0_i^
+        double V1_i_hat = 0;      // V1_i^
+        double V0_diff = 0;       // V0_i - V0_i^
+        double V1_diff = 0;       // V1_i - V1_i^
     };
     struct ReferenceInfo {
         int iterationsCount;

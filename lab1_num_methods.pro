@@ -14,6 +14,7 @@ SOURCES += \
     RK/FirstTaskModel.cpp \
     RK/FirstTaskWidget.cpp \
     RK/SecondTaskModel.cpp \
+    RK/SecondTaskWidget.cpp \
     RK/TestTaskModel.cpp \
     RK/TestTaskWidget.cpp \
     main.cpp \
@@ -25,6 +26,7 @@ HEADERS += \
     RK/FirstTaskWidget.hpp \
     RK/HelperRK.h \
     RK/SecondTaskModel.hpp \
+    RK/SecondTaskWidget.hpp \
     RK/TestTaskModel.hpp \
     RK/TestTaskWidget.hpp \
     mainwindow.hpp

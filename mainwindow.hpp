@@ -10,6 +10,8 @@ class TestTaskModel;
 class TestTaskWidget;
 class FirstTaskModel;
 class FirstTaskWidget;
+class SecondTaskModel;
+class SecondTaskWidget;
 }
 
 QT_BEGIN_NAMESPACE
@@ -32,9 +34,12 @@ private:
     RungeKutt::TestTaskWidget* m_testTaskWidget {nullptr};
     RungeKutt::FirstTaskModel* m_firstTaskModel {nullptr};
     RungeKutt::FirstTaskWidget* m_firstTaskWidget {nullptr};
+    RungeKutt::SecondTaskModel* m_secondTaskModel {nullptr};
+    RungeKutt::SecondTaskWidget* m_secondTaskWidget {nullptr};
 
     QWidget* createTestTaskTab();
     QWidget* createFirstTaskTab();
+    QWidget* createSecondTaskTab();
 
     QDoubleSpinBox* createSpinBox(const QString &labelText, QHBoxLayout *layout, double min, double max, double step);
 };

@@ -4,24 +4,28 @@
 
 namespace RungeKutt
 {
-class SecondTask : public RungeKutt::TestTaskModel
+class SecondTaskModel : public RungeKutt::TestTaskModel
 
 {
     Q_OBJECT
 public:
-    explicit SecondTask(double A,
+    explicit SecondTaskModel(double A,
                         double B,
                         double Step,
                         int MaxSteps,
                         double Eps,
                         double BoundEps,
                         double StartU,
+                        double a,
+                        double b,
+                        double c,
                         QObject *parent = nullptr);
 
-    void runRK4(double x, double v, QtCharts::QLineSeries *series_ui, QtCharts::QLineSeries *series_vi) override;
-    virtual void runRK4WithAdaptiveStep(double x, double v, QtCharts::QLineSeries *series_ui, QtCharts::QLineSeries *series_vi) override;
+    void methodFor2(double &X, std::vector<double> &V, double STEP);
+    void runRK4For2(double x, std::vector<double> v, QtCharts::QLineSeries *series_v0, QtCharts::QLineSeries *series_v1, QtCharts::QLineSeries *series_vv);
+    void runRK4WithAdaptiveStepFor2(double x, std::vector<double> v, QtCharts::QLineSeries *series_v0, QtCharts::QLineSeries *series_v1, QtCharts::QLineSeries *series_vv);
 
 private:
-    std::vector<double> f2(double x, std::vector<double> v);
+    std::vector<double> f2(double x, std::vector<double>& v);
 };
 }
