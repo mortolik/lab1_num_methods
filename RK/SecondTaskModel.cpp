@@ -33,8 +33,8 @@ SecondTaskModel::SecondTaskModel(double A,
 std::vector<double> SecondTaskModel::f2(double x, std::vector<double>& v)
 {
     double f_1 = v[1];
-    //double f_2 = -(m_parametres.a * v[1] * fabs(v[1]) + m_parametres.b * v[1] + m_parametres.c * v[0]);
-    double f_2 = -m_parametres.a * sin(v[0]);
+    double f_2 = -(m_parametres.a * v[1] * fabs(v[1]) + m_parametres.b * v[1] + m_parametres.c * v[0]);
+    //double f_2 = -m_parametres.a * sin(v[0]);
     std::vector<double>func(2);
     func[0] = f_1;
     func[1] = f_2;
@@ -111,6 +111,11 @@ void SecondTaskModel::runRK4For2(double x, std::vector<double> v, QtCharts::QLin
         }
     }
 
+
+    // Обновляем справочную информацию
+    referenceInfo.iterationsCount = results.size();
+    referenceInfo.distanceToBoundary = m_parametres.B - x;
+
     m_results = results;
 }
 
@@ -143,13 +148,10 @@ void SecondTaskModel::runRK4WithAdaptiveStepFor2(double x, std::vector<double> v
     // double oldX = x;
     // std::vector<double> oldV = v;  // Это к другому способу деления шага
 
-    for (int i = 1; i < m_parametres.MAX_STEPS; ++i) {
+    for (int i = 1; i <= m_parametres.MAX_STEPS; ++i) {
         DataRow row;
         row.index = i;
-        row.X_i = x;
-        row.V0_i = v[0];
-        row.V1_i = v[1];
-        row.STEP_i = m_parametres.STEP;
+        row.STEP_i = step;
         row.divisions = 0;
         row.doublings = 0;
 
@@ -221,7 +223,7 @@ void SecondTaskModel::runRK4WithAdaptiveStepFor2(double x, std::vector<double> v
                 //     }
                 // }
                 // validStep = true;
-            } else if (std::abs(S) < tolerance / pow(2.0, 5.0)) {
+            } else if (std::abs(S) < m_parametres.EPS / pow(2.0, 5.0)) {
                 // Удвоение шага
                 step *= 2.0;
                 row.doublings += 1;
@@ -230,19 +232,19 @@ void SecondTaskModel::runRK4WithAdaptiveStepFor2(double x, std::vector<double> v
             } else {
                 validStep = true; // Шаг подходит, выходим из цикла
             }
-            // if (x + step > m_parametres.B) {
-            //     step = m_parametres.B - x; // Корректируем шаг
-            //     methodFor2(x, v, step); // Делаем последний шаг до границы
-            //     break;
-            // }
-            if (x > m_parametres.B)
-            {
-                double overshoot = x - m_parametres.B;
-                x -= overshoot; // Коррекция X
-                v[0] = series_v0->pointsVector().last().y(); // Вернуться к последнему V0
-                v[1] = series_v1->pointsVector().last().y(); // Вернуться к последнему V1
+            if (x + step > m_parametres.B) {
+                step = m_parametres.B - x; // Корректируем шаг
+                methodFor2(x, v, step); // Делаем последний шаг до границы
                 break;
             }
+            // if (x > m_parametres.B)
+            // {
+            //     double overshoot = x - m_parametres.B;
+            //     x -= overshoot; // Коррекция X
+            //     v[0] = series_v0->pointsVector().last().y(); // Вернуться к последнему V0
+            //     v[1] = series_v1->pointsVector().last().y(); // Вернуться к последнему V1
+            //     break;
+            // }
 
             // Проверка на минимальный шаг
             if (step < MIN_STEP_THRESHOLD) {
