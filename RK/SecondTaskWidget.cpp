@@ -113,7 +113,7 @@ QChartView *SecondTaskWidget::createChartView() {
     chart->setTitle("График решения V(x)");
 
     m_seriesVV->setName("Фазовый портрет"); // ??????
-    chart->addSeries(m_seriesVDerivative);
+    chart->addSeries(m_seriesVV);
     chart->setTitle("График решения V(x)");
 
     chart->createDefaultAxes();
@@ -176,7 +176,7 @@ void SecondTaskWidget::updateReferenceInfo() {
 void SecondTaskWidget::calculateResults() {
     // Запуск нужного метода в зависимости от флага
     double x0 = m_model->m_parametres.A;
-    std::vector<double> v0 = {m_model->m_parametres.START_U, 1.0};
+    std::vector<double> v0 = {m_model->m_parametres.START_U, 0.0};
 
     if (m_useAdaptiveMethod) {
         m_model->runRK4WithAdaptiveStepFor2(x0, v0, m_seriesV, m_seriesVDerivative, m_seriesVV);
