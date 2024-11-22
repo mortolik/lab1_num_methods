@@ -87,7 +87,7 @@ void SecondTaskWidget::setUseAdaptiveMethod(bool useAdaptiveMethod)
 }
 
 QTableWidget *SecondTaskWidget::createTableWidget() {
-    QTableWidget *tableWidget = new QTableWidget(0, 9, this);
+    QTableWidget *tableWidget = new QTableWidget(0, 12, this);
 
     // Заголовки столбцов без `U_i` и `|U_i - V_i|`
     tableWidget->setHorizontalHeaderLabels({
@@ -176,7 +176,7 @@ void SecondTaskWidget::updateReferenceInfo() {
 void SecondTaskWidget::calculateResults() {
     // Запуск нужного метода в зависимости от флага
     double x0 = m_model->m_parametres.A;
-    std::vector<double> v0 = {m_model->m_parametres.START_U, 0.0};
+    std::vector<double> v0 = {m_model->m_parametres.START_U, 1.0};
 
     if (m_useAdaptiveMethod) {
         m_model->runRK4WithAdaptiveStepFor2(x0, v0, m_seriesV, m_seriesVDerivative, m_seriesVV);
