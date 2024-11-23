@@ -216,6 +216,17 @@ void SecondTaskWidget::calculateResults() {
         m_model->runRK4For2(x0, v0, seriesV, seriesVDerivative, seriesVV);
     }
 
+    // Определение диапазона по оси X
+    double maxX = m_model->m_parametres.A;
+    for (const auto &point : seriesV->points()) {
+        maxX = std::max(maxX, point.x());
+    }
+    for (const auto &point : seriesVDerivative->points()) {
+        maxX = std::max(maxX, point.x());
+    }
+    m_chartV->chart()->axisX()->setRange(m_model->m_parametres.A, maxX);
+
+
     // Очищаем предыдущие серии и добавляем новые
     static_cast<QChartView*>(m_chartV)->chart()->removeAllSeries();
     static_cast<QChartView*>(m_chartVDerivative)->chart()->removeAllSeries();
