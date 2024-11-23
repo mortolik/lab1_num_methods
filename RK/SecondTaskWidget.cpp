@@ -211,9 +211,9 @@ void SecondTaskWidget::calculateResults() {
     QLineSeries *seriesVV = new QLineSeries(this);          // Для фазового портрета
 
     if (m_useAdaptiveMethod) {
-        m_model->runRK4WithAdaptiveStepFor2(x0, v0, seriesV, seriesVDerivative, seriesVV, seriesVDerivative);
+        m_model->runRK4WithAdaptiveStepFor2(x0, v0, seriesV, seriesVDerivative, seriesVV);
     } else {
-        m_model->runRK4For2(x0, v0, seriesV, seriesVDerivative, seriesVV, seriesVDerivative);
+        m_model->runRK4For2(x0, v0, seriesV, seriesVDerivative, seriesVV);
     }
 
     // Очищаем предыдущие серии и добавляем новые

@@ -26,13 +26,11 @@ public:
     void runRK4For2(double x, std::vector<double> v,
                     QtCharts::QLineSeries *series_v0,
                     QtCharts::QLineSeries *series_v1,
-                    QtCharts::QLineSeries *series_vv,
-                    QtCharts::QLineSeries *series_v_derivative);
+                    QtCharts::QLineSeries *series_vv);
     void runRK4WithAdaptiveStepFor2(double x, std::vector<double> v,
                                     QtCharts::QLineSeries *series_v0,
                                     QtCharts::QLineSeries *series_v1,
-                                    QtCharts::QLineSeries *series_vv,
-                                    QtCharts::QLineSeries *series_v_derivative);
+                                    QtCharts::QLineSeries *series_vv);
 
 
 private:

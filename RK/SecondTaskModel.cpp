@@ -69,20 +69,18 @@ void SecondTaskModel::runRK4For2(
     std::vector<double> v,
     QtCharts::QLineSeries *series_v0,
     QtCharts::QLineSeries *series_v1,
-    QtCharts::QLineSeries *series_vv,
-    QtCharts::QLineSeries *series_v_derivative
-    ) {
+    QtCharts::QLineSeries *series_vv
+    )
+{
     // Очищаем перед началом расчетов
     series_v0->clear();
     series_v1->clear();
     series_vv->clear();
-    series_v_derivative->clear();
 
     // Заполняем начальные точки
     series_v0->append(x, v[0]);
     series_v1->append(x, v[1]);
     series_vv->append(v[0], v[1]);
-    series_v_derivative->append(x, v[1]);
 
     QVector<RungeKutt::DataRow> results;
 
@@ -106,7 +104,6 @@ void SecondTaskModel::runRK4For2(
         series_v0->append(x, v[0]);         // График V(x)
         series_v1->append(x, v[1]);         // График V'(x)
         series_vv->append(v[0], v[1]);      // Фазовый портрет
-        series_v_derivative->append(x, v[1]);  // Производная
 
         // Выполняем шаг Рунге-Кутта
         methodFor2(x, v, m_parametres.STEP);
@@ -124,18 +121,15 @@ void SecondTaskModel::runRK4For2(
 void SecondTaskModel::runRK4WithAdaptiveStepFor2(double x, std::vector<double> v,
                                                  QtCharts::QLineSeries *series_v0,
                                                  QtCharts::QLineSeries *series_v1,
-                                                 QtCharts::QLineSeries *series_vv,
-                                                 QtCharts::QLineSeries *series_v_derivative)
+                                                 QtCharts::QLineSeries *series_vv)
 {
     series_v0->clear();
     series_v1->clear();
     series_vv->clear();
-    series_v_derivative->clear();
 
     series_v0->append(x, v[0]);
     series_v1->append(x, v[1]);
     series_vv->append(v[0], v[1]);
-    series_v_derivative->append(x, v[1]);
 
     QVector<DataRow> results;
     double step = m_parametres.STEP;
@@ -290,7 +284,6 @@ void SecondTaskModel::runRK4WithAdaptiveStepFor2(double x, std::vector<double> v
         series_v0->append(x, v[0]);
         series_v1->append(x, v[1]);
         series_vv->append(v[0], v[1]);
-        series_v_derivative->append(x, v[1]);
 
         // Проверка выхода за границы
         if (x >= m_parametres.B - m_parametres.BOUND_EPS || step < MIN_STEP_THRESHOLD) {
