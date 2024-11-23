@@ -64,69 +64,78 @@ void SecondTaskModel::methodFor2(double &X, std::vector<double> &V, double STEP)
     X += STEP;
 }
 
-void SecondTaskModel::runRK4For2(double x, std::vector<double> v, QtCharts::QLineSeries *series_v0, QtCharts::QLineSeries *series_v1, QtCharts::QLineSeries *series_vv)
-{
+void SecondTaskModel::runRK4For2(
+    double x,
+    std::vector<double> v,
+    QtCharts::QLineSeries *series_v0,
+    QtCharts::QLineSeries *series_v1,
+    QtCharts::QLineSeries *series_vv,
+    QtCharts::QLineSeries *series_v_derivative
+    ) {
+    // Очищаем перед началом расчетов
     series_v0->clear();
     series_v1->clear();
     series_vv->clear();
+    series_v_derivative->clear();
+
+    // Заполняем начальные точки
     series_v0->append(x, v[0]);
     series_v1->append(x, v[1]);
     series_vv->append(v[0], v[1]);
-
+    series_v_derivative->append(x, v[1]);
 
     QVector<RungeKutt::DataRow> results;
 
-    for (int i = 1; i <= m_parametres.MAX_STEPS; ++i)
-    {
+    for (int i = 1; i <= m_parametres.MAX_STEPS; ++i) {
+        // Проверяем, нет ли переполнений или ошибок
+        if (std::isinf(v[0]) || std::isnan(v[0]) || std::isinf(v[1]) || std::isnan(v[1])) {
+            referenceInfo.IS_INF = true;
+            break;
+        }
+
+        // Сохраняем результаты для таблицы
         RungeKutt::DataRow row;
         row.index = i;
         row.X_i = x;
         row.V0_i = v[0];
         row.V1_i = v[1];
         row.STEP_i = m_parametres.STEP;
-
-        if (std::isinf(v[0]) || std::isnan(v[0]) || std::isinf(v[1]) || std::isnan(v[1]))
-        {
-            referenceInfo.IS_INF = true;
-            break;
-        }
-
-
         results.append(row);
-        series_v0->append(x, v[0]);
-        series_v1->append(x, v[1]);
-        series_vv->append(v[0], v[1]);
+
+        // Добавляем данные для графиков
+        series_v0->append(x, v[0]);         // График V(x)
+        series_v1->append(x, v[1]);         // График V'(x)
+        series_vv->append(v[0], v[1]);      // Фазовый портрет
+        series_v_derivative->append(x, v[1]);  // Производная
 
         // Выполняем шаг Рунге-Кутта
         methodFor2(x, v, m_parametres.STEP);
 
-        // Проверка выхода за правую границу
-        if (x > m_parametres.B)
-        {
-            double overshoot = x - m_parametres.B;
-            x -= overshoot; // Коррекция X
-            v[0] = series_v0->pointsVector().last().y(); // Вернуться к последнему V0
-            v[1] = series_v1->pointsVector().last().y(); // Вернуться к последнему V1
-            break;
-        }
+        // Проверяем выход за границы
+        if (x > m_parametres.B) break;
     }
-
 
     // Обновляем справочную информацию
     referenceInfo.iterationsCount = results.size();
     referenceInfo.distanceToBoundary = m_parametres.B - x;
-
     m_results = results;
 }
 
-void SecondTaskModel::runRK4WithAdaptiveStepFor2(double x, std::vector<double> v, QtCharts::QLineSeries *series_v0, QtCharts::QLineSeries *series_v1, QLineSeries *series_vv)
+void SecondTaskModel::runRK4WithAdaptiveStepFor2(double x, std::vector<double> v,
+                                                 QtCharts::QLineSeries *series_v0,
+                                                 QtCharts::QLineSeries *series_v1,
+                                                 QtCharts::QLineSeries *series_vv,
+                                                 QtCharts::QLineSeries *series_v_derivative)
 {
     series_v0->clear();
     series_v1->clear();
     series_vv->clear();
+    series_v_derivative->clear();
+
     series_v0->append(x, v[0]);
     series_v1->append(x, v[1]);
     series_vv->append(v[0], v[1]);
+    series_v_derivative->append(x, v[1]);
 
     QVector<DataRow> results;
     double step = m_parametres.STEP;
@@ -281,6 +290,7 @@ void SecondTaskModel::runRK4WithAdaptiveStepFor2(double x, std::vector<double> v
         series_v0->append(x, v[0]);
         series_v1->append(x, v[1]);
         series_vv->append(v[0], v[1]);
+        series_v_derivative->append(x, v[1]);
 
         // Проверка выхода за границы
         if (x >= m_parametres.B - m_parametres.BOUND_EPS || step < MIN_STEP_THRESHOLD) {

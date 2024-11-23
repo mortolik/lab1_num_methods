@@ -19,21 +19,29 @@ SecondTaskWidget::SecondTaskWidget(SecondTaskModel *model, QWidget *parent)
     : QWidget(parent), m_model(model) {
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
 
-    // Создаем виджет таблицы и графика
+    // Создаем вкладки
     QTabWidget *tabWidget = new QTabWidget(this);
+
+    // Таблица
     m_tableWidget = createTableWidget();
     tabWidget->addTab(m_tableWidget, "Таблица");
 
-    m_chartV = createChartView();
+    // График V(x)
+    m_seriesV = new QLineSeries(this);
+    m_chartV = createChartView(m_seriesV, "График V(x)");
     tabWidget->addTab(m_chartV, "График V(x)");
 
-    m_chartVDerivative = createChartView();
+    // График V'(x)
+    m_seriesVDerivative = new QLineSeries(this);
+    m_chartVDerivative = createChartView(m_seriesVDerivative, "График V'(x)");
     tabWidget->addTab(m_chartVDerivative, "График V'(x)");
 
-    m_chartVV = createChartView();
+    // Фазовый портрет V'(V)
+    m_seriesVV = new QLineSeries(this);
+    m_chartVV = createChartView(m_seriesVV, "Фазовый портрет V'(V)");
     tabWidget->addTab(m_chartVV, "График V'(V)");
 
-    // Создаем referenceWidget
+    // Справочная информация
     QWidget *referenceWidget = new QWidget(this);
     QVBoxLayout *referenceLayout = new QVBoxLayout(referenceWidget);
     referenceLayout->setSpacing(3);
@@ -66,7 +74,7 @@ SecondTaskWidget::SecondTaskWidget(SecondTaskModel *model, QWidget *parent)
     referenceFrame->setLayout(referenceLayout);
     referenceFrame->setFixedWidth(230);
 
-    // Создаем горизонтальный layout для таблицы и справки
+    // Горизонтальный макет для справки и вкладок
     QHBoxLayout *tabLayout = new QHBoxLayout();
     tabLayout->addWidget(referenceFrame);
     tabLayout->addWidget(tabWidget);
@@ -80,6 +88,7 @@ SecondTaskWidget::SecondTaskWidget(SecondTaskModel *model, QWidget *parent)
 
     setLayout(mainLayout);
 }
+
 
 void SecondTaskWidget::setUseAdaptiveMethod(bool useAdaptiveMethod)
 {
@@ -98,30 +107,49 @@ QTableWidget *SecondTaskWidget::createTableWidget() {
     return tableWidget;
 }
 
-QChartView *SecondTaskWidget::createChartView() {
+QChartView *SecondTaskWidget::createChartView(QLineSeries *series, const QString &title) {
     QChart *chart = new QChart();
-    m_seriesV = new QLineSeries();
-    m_seriesVDerivative = new QLineSeries();
-    m_seriesVV = new QLineSeries();
-
-    m_seriesV->setName("Численное решение V(x)");
-    chart->addSeries(m_seriesV);
-    chart->setTitle("График решения V(x)");
-
-    m_seriesVDerivative->setName("График первой производной"); // ??????
-    chart->addSeries(m_seriesVDerivative);
-    chart->setTitle("График решения V(x)");
-
-    m_seriesVV->setName("Фазовый портрет"); // ??????
-    chart->addSeries(m_seriesVV);
-    chart->setTitle("График решения V(x)");
-
+    chart->addSeries(series);
+    chart->setTitle(title);
     chart->createDefaultAxes();
     chart->legend()->setVisible(true);
 
     QChartView *chartView = new QChartView(chart);
     chartView->setRenderHint(QPainter::Antialiasing);
+    return chartView;
+}
 
+
+
+QChartView *SecondTaskWidget::createChartViewForDerivative()
+{
+    QChart *chart = new QChart();
+    m_seriesVDerivative = new QLineSeries();
+    m_seriesVDerivative->setName("График V'(x)");
+    chart->addSeries(m_seriesVDerivative);
+
+    chart->setTitle("Производная V'(x)");
+    chart->createDefaultAxes();
+    chart->legend()->setVisible(true);
+
+    QChartView *chartView = new QChartView(chart);
+    chartView->setRenderHint(QPainter::Antialiasing);
+    return chartView;
+}
+
+QChartView *SecondTaskWidget::createChartViewForPhasePortrait()
+{
+    QChart *chart = new QChart();
+    m_seriesVV = new QLineSeries();
+    m_seriesVV->setName("Фазовый портрет V'(V)");
+    chart->addSeries(m_seriesVV);
+
+    chart->setTitle("Фазовый портрет V'(V)");
+    chart->createDefaultAxes();
+    chart->legend()->setVisible(true);
+
+    QChartView *chartView = new QChartView(chart);
+    chartView->setRenderHint(QPainter::Antialiasing);
     return chartView;
 }
 
@@ -174,55 +202,35 @@ void SecondTaskWidget::updateReferenceInfo() {
 }
 
 void SecondTaskWidget::calculateResults() {
-    // Запуск нужного метода в зависимости от флага
     double x0 = m_model->m_parametres.A;
     std::vector<double> v0 = {m_model->m_parametres.START_U, 0.0};
 
+    // Создаем независимые серии для каждого графика
+    QLineSeries *seriesV = new QLineSeries(this);           // Для V(x)
+    QLineSeries *seriesVDerivative = new QLineSeries(this); // Для V'(x)
+    QLineSeries *seriesVV = new QLineSeries(this);          // Для фазового портрета
+
     if (m_useAdaptiveMethod) {
-        m_model->runRK4WithAdaptiveStepFor2(x0, v0, m_seriesV, m_seriesVDerivative, m_seriesVV);
+        m_model->runRK4WithAdaptiveStepFor2(x0, v0, seriesV, seriesVDerivative, seriesVV, seriesVDerivative);
     } else {
-        m_model->runRK4For2(x0, v0, m_seriesV, m_seriesVDerivative, m_seriesVV);
+        m_model->runRK4For2(x0, v0, seriesV, seriesVDerivative, seriesVV, seriesVDerivative);
     }
 
-    // Определение диапазона по оси X
-    double maxX = m_model->m_parametres.A;
-    for (const auto &point : m_seriesV->points()) {
-        maxX = std::max(maxX, point.x());
-    }
-    m_chartV->chart()->axisX()->setRange(m_model->m_parametres.A, maxX);
+    // Очищаем предыдущие серии и добавляем новые
+    static_cast<QChartView*>(m_chartV)->chart()->removeAllSeries();
+    static_cast<QChartView*>(m_chartVDerivative)->chart()->removeAllSeries();
+    static_cast<QChartView*>(m_chartVV)->chart()->removeAllSeries();
 
-    for (const auto &point : m_seriesVDerivative->points()) {
-        maxX = std::max(maxX, point.x());
-    }
-    m_chartVDerivative->chart()->axisX()->setRange(m_model->m_parametres.A, maxX);
+    static_cast<QChartView*>(m_chartV)->chart()->addSeries(seriesV);
+    static_cast<QChartView*>(m_chartVDerivative)->chart()->addSeries(seriesVDerivative);
+    static_cast<QChartView*>(m_chartVV)->chart()->addSeries(seriesVV);
 
-    for (const auto &point : m_seriesVV->points()) {
-        maxX = std::max(maxX, point.x());
-    }
-    m_chartVV->chart()->axisX()->setRange(m_model->m_parametres.A, maxX);
+    // Автоматическое обновление осей
+    static_cast<QChartView*>(m_chartV)->chart()->createDefaultAxes();
+    static_cast<QChartView*>(m_chartVDerivative)->chart()->createDefaultAxes();
+    static_cast<QChartView*>(m_chartVV)->chart()->createDefaultAxes();
 
-    // Определение диапазона по оси Y
-    double minY = std::numeric_limits<double>::max();
-    double maxY = std::numeric_limits<double>::lowest();
-    for (const auto &point : m_seriesV->points()) {
-        minY = std::min(minY, point.y());
-        maxY = std::max(maxY, point.y());
-    }
-    m_chartV->chart()->axisX()->setRange(m_model->m_parametres.A, maxX);
-
-    for (const auto &point : m_seriesVDerivative->points()) {
-        minY = std::min(minY, point.y());
-        maxY = std::max(maxY, point.y());
-    }
-    m_chartVDerivative->chart()->axisX()->setRange(m_model->m_parametres.A, maxX);
-
-    for (const auto &point : m_seriesVV->points()) {
-        minY = std::min(minY, point.y());
-        maxY = std::max(maxY, point.y());
-    }
-    m_chartVV->chart()->axisY()->setRange(minY, maxY);
-
-    // Обновление таблицы и справочной информации
+    // Обновляем таблицу и справочную информацию
     updateTable();
     updateReferenceInfo();
 }

@@ -28,7 +28,9 @@ private slots:
 
 private:
     QTableWidget *createTableWidget();      // Метод для создания виджета таблицы
-    QtCharts::QChartView *createChartView(); // Метод для создания виджета графика
+    QtCharts::QChartView *createChartView(QLineSeries *series, const QString &title);
+    QtCharts::QChartView *createChartViewForDerivative();
+    QtCharts::QChartView *createChartViewForPhasePortrait(); // Метод для создания виджета графика
     //QtCharts::QChartView *createChartView2(); // Если раскомментить, то не запуститься, Толя хелп
     //QtCharts::QChartView *createChartView3(); // Если раскомментить, то не запуститься, Толя хелп
 
