@@ -123,188 +123,101 @@ void SecondTaskModel::runRK4WithAdaptiveStepFor2(double x, std::vector<double> v
                                                  QtCharts::QLineSeries *series_v1,
                                                  QtCharts::QLineSeries *series_vv)
 {
+    // Очистка графиков
     series_v0->clear();
     series_v1->clear();
     series_vv->clear();
 
+    // Добавление начальных значений
     series_v0->append(x, v[0]);
     series_v1->append(x, v[1]);
     series_vv->append(v[0], v[1]);
 
     QVector<DataRow> results;
+
     double step = m_parametres.STEP;
     double tolerance = m_parametres.EPS;
+    const double MIN_STEP_THRESHOLD = 1e-9;
+
     double x_half, x_full;
     std::vector<double> v_half, v_full;
-    const double MIN_STEP_THRESHOLD = 1e-9; // Минимально допустимый шаг
 
-    // Переменные для справочной информации
-    int doublingCount = 0;
-    int reductionCount = 0;
-    double maxStep = step;
-    double maxStepX = x;
-    double minStepX = x;
-    double minStep = step;
-    double maxOLP = 0.0;
+    while (x < m_parametres.B) {
+        x_half = x;
+        v_half = v;
 
+        x_full = x;
+        v_full = v;
 
-    // double oldX = x;
-    // std::vector<double> oldV = v;  // Это к другому способу деления шага
+        // Первый расчет: два шага с половинным шагом
+        double step_half = step / 2.0;
+        methodFor2(x_half, v_half, step_half);
+        methodFor2(x_half, v_half, step_half);
 
-    for (int i = 1; i <= m_parametres.MAX_STEPS; ++i) {
-        DataRow row;
-        row.index = i;
-        row.STEP_i = step;
-        row.divisions = 0;
-        row.doublings = 0;
+        // Второй расчет: один шаг с полным шагом
+        methodFor2(x_full, v_full, step);
 
-
-        bool validStep = false; // Флаг для проверки корректности шага
-        while (!validStep) {
-            x_half = x;
-            v_half = v;
-            double step_half = step / 2.0;
-
-            // Два шага с половинным шагом
-            methodFor2(x_half, v_half, step_half);
-            methodFor2(x_half, v_half, step_half);
-
-            // Один шаг с полным шагом
-            x_full = x;
-            v_full = v;
-            methodFor2(x_full, v_full, step);
-
-            if (std::isinf(v_full[0]) || std::isnan(v_full[0]) || std::isinf(v_full[1]) || std::isnan(v_full[1])
-                || std::isinf(v_half[0]) || std::isnan(v_half[0]) || std::isinf(v_half[1]) || std::isnan(v_half[1]))
-            {
-                referenceInfo.IS_INF = true;
-                break;
-            }
-
-            // Локальная погрешность
-            double S1 = (v_half[0] - v_full[0]) / (pow(2.0, 4) - 1.0);
-            double S2 = (v_half[1] - v_full[1]) / (pow(2.0, 4) - 1.0);
-            double S = sqrt(S1 * S1 + S2 * S2);
-            row.OLP_S = std::abs(S) * pow(2.0, 4);
-
-            if (row.OLP_S > maxOLP) {
-                maxOLP = row.OLP_S;  // Обновляем максимальное значение ОЛП
-            }
-
-            if (std::abs(S) > tolerance) {
-                // Деление шага
-
-                step /= 2.0;
-                row.divisions += 1;
-                reductionCount++;
-
-
-                // bool FLAG_TO_EXIT = false;
-                //                 // выполняем расчёт с половинным шагом, если для него погрешность снова
-                // while (!FLAG_TO_EXIT) {
-                //     // оказалась большой, то снова возвращаемся и делим шаг, и так пока погрешность не будет допустимой
-                //     step /= 2.0;
-                //     reductionCount++;
-                //     row.divisions += 1;
-
-                //     v_full = oldV;
-                //     x_full = oldX;
-                //     v_half = v_full;
-                //     x_half = x_full;
-
-                //     for (int i = 0; i < 2; ++i) {
-                //         methodFor2(x_half, v_half, step / 2.0);
-                //     }
-                //     methodFor2(x_full, v_full, step);
-
-                //     S1 = (v_half[0] - v_full[0]) / (pow(2.0, 4.0) - 1.0);
-                //     S2 = (v_half[1] - v_full[1]) / (pow(2.0, 4.0) - 1.0);
-                //     S = sqrt(S1 * S1 + S2 * S2);
-                //     if (abs(S) <= m_parametres.EPS) {
-                //         FLAG_TO_EXIT = true;
-                //         m_parametres.STEP = step;
-                //     }
-                // }
-                // validStep = true;
-            } else if (std::abs(S) < m_parametres.EPS / pow(2.0, 5.0)) {
-                // Удвоение шага
-                step *= 2.0;
-                row.doublings += 1;
-                doublingCount++;
-                validStep = true; // Шаг подходит, выходим из цикла
-            } else {
-                validStep = true; // Шаг подходит, выходим из цикла
-            }
-            if (x + step > m_parametres.B) {
-                step = m_parametres.B - x; // Корректируем шаг
-                methodFor2(x, v, step); // Делаем последний шаг до границы
-                break;
-            }
-            // if (x > m_parametres.B)
-            // {
-            //     double overshoot = x - m_parametres.B;
-            //     x -= overshoot; // Коррекция X
-            //     v[0] = series_v0->pointsVector().last().y(); // Вернуться к последнему V0
-            //     v[1] = series_v1->pointsVector().last().y(); // Вернуться к последнему V1
-            //     break;
-            // }
-
-            // Проверка на минимальный шаг
-            if (step < MIN_STEP_THRESHOLD) {
-                validStep = true; // Завершаем адаптацию шага
-            }
-
+        // Проверка на корректность данных
+        if (std::isinf(v_full[0]) || std::isnan(v_full[0]) ||
+            std::isinf(v_full[1]) || std::isnan(v_full[1]) ||
+            std::isinf(v_half[0]) || std::isnan(v_half[0]) ||
+            std::isinf(v_half[1]) || std::isnan(v_half[1])) {
+            referenceInfo.IS_INF = true;
+            break;
         }
 
+        // Вычисление локальной погрешности
+        double S1 = (v_half[0] - v_full[0]) / (pow(2.0, 4) - 1.0);
+        double S2 = (v_half[1] - v_full[1]) / (pow(2.0, 4) - 1.0);
+        double S = sqrt(S1 * S1 + S2 * S2);
 
-        // Обновляем значения после корректного шага
-        row.V0_i_hat = v_half[0];
-        row.V1_i_hat = v_half[1];
-        row.V0_diff = std::abs(v_half[0] - v_full[0]);
-        row.V1_diff = std::abs(v_half[1] - v_full[1]);
+        // Контроль ошибки
+        if (std::abs(S) > tolerance) {
+            step /= 2.0;  // Уменьшение шага
+            continue;     // Повторяем шаг
+        } else if (std::abs(S) < tolerance / pow(2.0, 5)) {
+            step = std::min(step * 2.0, m_parametres.B - x);  // Увеличиваем шаг
+        }
 
+        // Добавление данных в графики
         x = x_full;
         v = v_full;
 
-        row.X_i = x;
-        row.V0_i = v[0];
-        row.V1_i = v[1];
-
-        // Обновляем шаги для справочной информации
-        if (step > maxStep) {
-            maxStep = step;
-            maxStepX = x + step;
-        }
-        if (step < minStep) {
-            minStep = step;
-            minStepX = x;
-        }
-
-        results.append(row);
         series_v0->append(x, v[0]);
         series_v1->append(x, v[1]);
         series_vv->append(v[0], v[1]);
 
-        // Проверка выхода за границы
-        if (x >= m_parametres.B - m_parametres.BOUND_EPS || step < MIN_STEP_THRESHOLD) {
-            break;
+        // Сохранение данных в таблицу
+        DataRow row;
+        row.index = results.size() + 1;
+        row.X_i = x;
+        row.V0_i = v[0];
+        row.V1_i = v[1];
+        row.V0_i_hat = v_half[0];
+        row.V1_i_hat = v_half[1];
+        row.V0_diff = std::abs(v[0] - v_half[0]);
+        row.V1_diff = std::abs(v[1] - v_half[1]);
+        row.OLP_S = std::abs(S) * pow(2.0, 4);
+        row.STEP_i = step;
+
+        results.append(row);
+
+        // Проверка выхода за правую границу
+        if (x + step > m_parametres.B || step < MIN_STEP_THRESHOLD) {
+            step = m_parametres.B - x;  // Корректируем шаг
         }
     }
 
+    // Сохранение результатов
     m_results = results;
 
-    // Обновляем справочную информацию
+    // Обновление справочной информации
     referenceInfo.iterationsCount = results.size();
     referenceInfo.distanceToBoundary = m_parametres.B - x;
-    referenceInfo.maxOLP = maxOLP;
-    referenceInfo.stepDoublingCount = doublingCount;
-    referenceInfo.stepReductionCount = reductionCount;
-    referenceInfo.maxStep = maxStep;
-    referenceInfo.maxStepX = maxStepX;
-    referenceInfo.minStepX = minStepX;
-    referenceInfo.minStep = minStep;
-
+    referenceInfo.maxOLP = std::max_element(results.begin(), results.end(),
+                                            [](const DataRow &a, const DataRow &b) {
+                                                return a.OLP_S < b.OLP_S;
+                                            })->OLP_S;
 }
-
 
 }

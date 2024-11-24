@@ -193,8 +193,8 @@ QWidget* MainWindow::createSecondTaskTab() {
     auto *bSpinBox = createSpinBox("B:", paramLayout, -10.0, 10.0, 1.0);
     auto *stepSpinBox = createSpinBox("Step:", paramLayout, 0.0001, 1.0, 0.001);
     auto *maxStepsSpinBox = createSpinBox("Max Steps:", paramLayout, 1, 1000, 100);
-    auto *epsSpinBox = createSpinBox("Eps:", paramLayout, 0.0001, 1.0, 0.001);
-    auto *boundEpsSpinBox = createSpinBox("Bound Eps:", paramLayout, 0.0001, 1.0, 0.001);
+    auto *epsSpinBox = createSpinBox("Eps:", paramLayout, 1e-6, 1.0, 0.001);
+    auto *boundEpsSpinBox = createSpinBox("Bound Eps:", paramLayout, 1e-6, 1.0, 0.001);
     auto *startUSpinBox = createSpinBox("Start U:", paramLayout, -100.0, 100.0, 1.0);
     auto *aParamSpinBox = createSpinBox("a:", paramLayout, -10.0, 10.0, 1.0);
     auto *bParamSpinBox = createSpinBox("b:", paramLayout, -10.0, 10.0, 1.0);
@@ -202,11 +202,13 @@ QWidget* MainWindow::createSecondTaskTab() {
 
     // Установка значений по умолчанию
     aSpinBox->setValue(0.0);
-    bSpinBox->setValue(5.0);
+    bSpinBox->setValue(10.0);
     stepSpinBox->setValue(0.01);
-    maxStepsSpinBox->setValue(500);
-    epsSpinBox->setValue(0.001);
-    boundEpsSpinBox->setValue(0.01);
+    maxStepsSpinBox->setValue(1000);
+    epsSpinBox->setValue(1e-6);
+    epsSpinBox->setDecimals(6);
+    boundEpsSpinBox->setValue(1e-6);
+    boundEpsSpinBox->setDecimals(6);
     startUSpinBox->setValue(1.0);
     aParamSpinBox->setValue(1.0);
     bParamSpinBox->setValue(1.0);
