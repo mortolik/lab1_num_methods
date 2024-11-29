@@ -26,23 +26,16 @@ SecondTaskModel::SecondTaskModel(double A,
     m_parametres.c = c;
 }
 
-
-
-
-
 std::vector<double> SecondTaskModel::f2(double x, std::vector<double>& v)
 {
     double f_1 = v[1];
     double f_2 = -(m_parametres.a * v[1] * fabs(v[1]) + m_parametres.b * v[1] + m_parametres.c * v[0]);
-    //double f_2 = -m_parametres.a * sin(v[0]);
     std::vector<double>func(2);
     func[0] = f_1;
     func[1] = f_2;
 
     return func;
 }
-
-
 
 void SecondTaskModel::methodFor2(double &X, std::vector<double> &V, double STEP)
 {
