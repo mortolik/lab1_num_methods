@@ -4,7 +4,7 @@
 #include <QtCharts/QChartView>
 #include <QtCharts/QLineSeries>
 #include <QVBoxLayout>
-#include "TestTaskModel.hpp"
+#include "RK/Model/TestTaskModel.hpp"
 #include "qlabel.h"
 
 using namespace QtCharts;

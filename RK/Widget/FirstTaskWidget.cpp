@@ -1,5 +1,5 @@
 #include "FirstTaskWidget.hpp"
-#include "RK/FirstTaskModel.hpp"
+#include "RK/Model/FirstTaskModel.hpp"
 #include <QtCharts/QChart>
 #include <QtCharts/QChartView>
 #include <QtCharts/QValueAxis>

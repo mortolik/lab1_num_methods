@@ -11,24 +11,24 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    RK/FirstTaskModel.cpp \
-    RK/FirstTaskWidget.cpp \
-    RK/SecondTaskModel.cpp \
-    RK/SecondTaskWidget.cpp \
-    RK/TestTaskModel.cpp \
-    RK/TestTaskWidget.cpp \
+    RK/Model/FirstTaskModel.cpp \
+    RK/Model/SecondTaskModel.cpp \
+    RK/Model/TestTaskModel.cpp \
+    RK/Widget/FirstTaskWidget.cpp \
+    RK/Widget/SecondTaskWidget.cpp \
+    RK/Widget/TestTaskWidget.cpp \
     main.cpp \
     mainwindow.cpp
 
 HEADERS += \
     HelperRK.h \
-    RK/FirstTaskModel.hpp \
-    RK/FirstTaskWidget.hpp \
     RK/HelperRK.h \
-    RK/SecondTaskModel.hpp \
-    RK/SecondTaskWidget.hpp \
-    RK/TestTaskModel.hpp \
-    RK/TestTaskWidget.hpp \
+    RK/Model/FirstTaskModel.hpp \
+    RK/Model/SecondTaskModel.hpp \
+    RK/Model/TestTaskModel.hpp \
+    RK/Widget/FirstTaskWidget.hpp \
+    RK/Widget/SecondTaskWidget.hpp \
+    RK/Widget/TestTaskWidget.hpp \
     mainwindow.hpp
 
 FORMS += \

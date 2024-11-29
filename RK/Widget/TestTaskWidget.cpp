@@ -1,5 +1,5 @@
 #include "TestTaskWidget.hpp"
-#include "RK/TestTaskModel.hpp"
+#include "RK/Model/TestTaskModel.hpp"
 #include <QtCharts/QChart>
 #include <QtCharts/QChartView>
 #include <QtCharts/QValueAxis>

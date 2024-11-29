@@ -1,5 +1,5 @@
 #include "SecondTaskWidget.hpp"
-#include "RK/SecondTaskModel.hpp"
+#include "RK/Model/SecondTaskModel.hpp"
 #include <QtCharts/QChart>
 #include <QtCharts/QChartView>
 #include <QtCharts/QValueAxis>

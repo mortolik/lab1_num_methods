@@ -2,12 +2,12 @@
 #include <QTabWidget>
 
 #include "mainwindow.hpp"
-#include "RK/TestTaskModel.hpp"
-#include "RK/TestTaskWidget.hpp"
-#include "RK/FirstTaskModel.hpp"
-#include "RK/FirstTaskWidget.hpp"
-#include "RK/SecondTaskModel.hpp"
-#include "RK/SecondTaskWidget.hpp"
+#include "RK/Model/TestTaskModel.hpp"
+#include "RK/Widget/TestTaskWidget.hpp"
+#include "RK/Model/FirstTaskModel.hpp"
+#include "RK/Widget/FirstTaskWidget.hpp"
+#include "RK/Model/SecondTaskModel.hpp"
+#include "RK/Widget/SecondTaskWidget.hpp"
 #include "qboxlayout.h"
 #include "qcheckbox.h"
 #include "qpushbutton.h"
