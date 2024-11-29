@@ -28,6 +28,12 @@ void FirstTaskModel::runRK4(double x, double v, QtCharts::QLineSeries *series_ui
 
     QVector<RungeKutt::DataRow> results;
 
+    // Инициализация переменных для справочной информации
+    double maxStep = m_parametres.STEP;
+    double minStep = m_parametres.STEP;
+    double maxStepX = x;
+    double minStepX = x;
+
     for (int i = 1; i <= m_parametres.MAX_STEPS; ++i)
     {
         RungeKutt::DataRow row;
@@ -59,7 +65,19 @@ void FirstTaskModel::runRK4(double x, double v, QtCharts::QLineSeries *series_ui
     }
 
     m_results = results;
+
+    // Обновляем справочную информацию
+    referenceInfo.iterationsCount = results.size();
+    referenceInfo.distanceToBoundary = m_parametres.B - x;
+    referenceInfo.maxStep = maxStep;
+    referenceInfo.minStep = minStep;
+    referenceInfo.maxStepX = maxStepX;
+    referenceInfo.minStepX = minStepX;
+    referenceInfo.stepDoublingCount = 0;   // Для метода без адаптации удвоений шагов нет
+    referenceInfo.stepReductionCount = 0; // Для метода без адаптации уменьшений шагов нет
+    referenceInfo.maxOLP = 0;             // ОЛП не вычисляется в этом методе
 }
+
 
 void FirstTaskModel::runRK4WithAdaptiveStep(double x, double v, QtCharts::QLineSeries *series_ui, QtCharts::QLineSeries *series_vi)
 {
