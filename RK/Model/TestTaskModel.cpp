@@ -212,6 +212,7 @@ void RungeKutt::TestTaskModel::runRK4WithAdaptiveStep(double x, double v, QtChar
                 step /= 2.0;
                 row.divisions += 1;
             	reductionCount++;
+                continue;
             } else if (std::abs(S) < tolerance / pow(2, 5)) {
                 // Удвоение шага
                 step *= 2.0;

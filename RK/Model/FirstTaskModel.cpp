@@ -117,6 +117,7 @@ void FirstTaskModel::runRK4WithAdaptiveStep(double x, double v, QtCharts::QLineS
                 step /= 2.0;
                 row.divisions += 1;
                 reductionCount++;
+                continue;     // Повторяем шаг
             } else if (std::abs(S) < tolerance / pow(2, 5)) {
                 // Удвоение шага
                 step *= 2.0;
