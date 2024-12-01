@@ -177,6 +177,7 @@ void FirstTaskModel::runRK4WithAdaptiveStep(double x, double v, QtCharts::QLineS
 
                     if (std::abs(S) <= tolerance) {
                         step = h;
+                        row.STEP_i = step;
                         reduced = true;
                         validStep = true;
                         break;
