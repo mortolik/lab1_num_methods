@@ -57,7 +57,7 @@ void RungeKutt::TestTaskModel::method(double &X, double &V, double STEP)
     double k3 = f(X + STEP / 2.0, V + (STEP / 2.0) * k2);
     double k4 = f(X + STEP, V + STEP * k3);
 
-    V += STEP * (k1 + 2 * k2 + 2 * k3 + k4) / 6.0;
+    V += (STEP / 6.0) * (k1 + 2.0 * k2 + 2.0 * k3 + k4);
     X += STEP;
 }
 
