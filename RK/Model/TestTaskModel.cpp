@@ -59,6 +59,9 @@ void RungeKutt::TestTaskModel::method(double &X, double &V, double STEP)
 
     V += (STEP / 6.0) * (k1 + 2.0 * k2 + 2.0 * k3 + k4);
     X += STEP;
+    if (std::isnan(X) || std::isnan(V) || std::isinf(X  ) || std::isinf(V)) {
+        return;
+    }
 }
 
 ReferenceInfo TestTaskModel::getReference() const {

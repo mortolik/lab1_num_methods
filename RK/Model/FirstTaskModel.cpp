@@ -106,10 +106,7 @@ void FirstTaskModel::runRK4WithAdaptiveStep(double x, double v, QtCharts::QLineS
 
         bool validStep = false;
         while (!validStep) {
-            // Сохраняем старые значения
             double old_x = x, old_v = v;
-
-            // Выполняем шаги
             x_half = x;
             v_half = v;
             x_full = x;
@@ -123,6 +120,15 @@ void FirstTaskModel::runRK4WithAdaptiveStep(double x, double v, QtCharts::QLineS
             // Один шаг с полным шагом
             method(x_full, v_full, step);
 
+            // Проверка на корректность данных
+            if (std::isinf(v_full) || std::isnan(v_full) ||
+                std::isinf(v_half) || std::isnan(v_half) ||
+                std::isinf(x_full) || std::isnan(x_full) ||
+                std::isinf(x_half) || std::isnan(x_half))
+            {
+                break;
+            }
+
             // Локальная погрешность
             double S = (v_half - v_full) / (pow(2.0, 4) - 1.0);
             row.OLP_S = std::abs(S) * pow(2.0, 4);
@@ -132,73 +138,70 @@ void FirstTaskModel::runRK4WithAdaptiveStep(double x, double v, QtCharts::QLineS
 
             if (std::abs(S) < tolerance / pow(2.0, 5))
             {
-                // Удвоение шага
                 step *= 2.0;
                 row.doublings += 1;
                 doublingCount++;
-                validStep = true; // Шаг подходит, выходим из цикла
+                validStep = true;
+            }
+            else if (std::abs(S) > tolerance)
+            {
+                double h = step;
+                bool reduced = false;
+
+                while (!reduced) {
+                    h /= 2.0;
+
+                    if (h < MIN_STEP_THRESHOLD)
+                    {
+                        validStep = true;
+                        reduced = true;
+                        break;
+                    }
+
+                    reductionCount++;
+                    row.divisions += 1;
+
+                    x = old_x;
+                    v = old_v;
+                    x_half = old_x;
+                    v_half = old_v;
+                    x_full = old_x;
+                    v_full = old_v;
+
+                    method(x_half, v_half, h / 2.0);
+                    method(x_half, v_half, h / 2.0);
+                    method(x_full, v_full, h);
+
+                    S = (v_half - v_full) / (pow(2.0, 4) - 1.0);
+                    row.OLP_S = std::abs(S) * pow(2.0, 4);
+
+                    if (std::abs(S) <= tolerance) {
+                        step = h;
+                        reduced = true;
+                        validStep = true;
+                        break;
+                    }
+                }
+                if (validStep)
+                    break;
             }
             else
             {
-                // Если погрешность превышает допустимое значение
-                bool reduced = false;
-                double h = step;
-
-                if (std::abs(S) > tolerance)
-                {
-                    while(!reduced)
-                    {
-                        h /= 2.0;
-
-                        reductionCount++;
-                        row.divisions += 1;
-
-                        // Возвращаемся к старым значениям
-                        x = old_x;
-                        v = old_v;
-                        x_half = old_x;
-                        v_half = old_v;
-                        x_full = old_x;
-                        v_full = old_v;
-
-
-                        // Два шага с половинным шагом
-                        method(x_half, v_half, h / 2.0);
-                        method(x_half, v_half, h / 2.0);
-
-                        // Один шаг с новым шагом
-                        method(x_full, v_full, h);
-
-                        // Пересчитываем локальную погрешность
-                        S = (v_half - v_full) / (pow(2.0, 4) - 1.0);
-                        row.OLP_S = std::abs(S) * pow(2.0, 4);
-                        if (std::abs(S) <= tolerance)
-                        {
-                            reduced = true;
-                            step = h;
-                        }
-                    }
-                }
-
-                if (reduced)
-                {
-                    validStep = true; // Прекращаем уменьшение шага
-                }
-            }            
-            // Проверка на минимальный шаг
-            if (step < MIN_STEP_THRESHOLD)
-            {
-                validStep = true; // Завершаем адаптацию шага
+                validStep = true; // Шаг подходит, выходим из цикла
             }
-            if (x + step > m_parametres.B)
+
+            // Проверка на минимальный шаг
+            if (step < MIN_STEP_THRESHOLD || std::abs(S) < tolerance / pow(2.0, 5))
             {
-                step = m_parametres.B - x; // Корректируем шаг
-                method(x, v, step); // Делаем последний шаг до границы
+                validStep = true;
                 break;
             }
         }
-
-        // Обновляем значения после корректного шага
+        if (std::isnan(x_half) || std::isinf(x_half) || std::isnan(v_half) ||
+            std::isinf(v_half) || std::isnan(v_full) || std::isinf(v_full) || std::isinf(std::abs(v_half - v_full)))
+        {
+            break; // Некорректные значения, завершаем
+        }
         row.V_i_hat = v_half;
         row.V_diff = std::abs(v_half - v_full);
         x = x_full;
@@ -206,10 +209,9 @@ void FirstTaskModel::runRK4WithAdaptiveStep(double x, double v, QtCharts::QLineS
         row.X_i = x;
         row.V_i = v;
 
-        // Обновляем справочную информацию
         if (step > maxStep) {
             maxStep = step;
-            maxStepX = x;
+            maxStepX = x + step;
         }
         if (step < minStep) {
             minStep = step;
@@ -219,17 +221,21 @@ void FirstTaskModel::runRK4WithAdaptiveStep(double x, double v, QtCharts::QLineS
         results.append(row);
         series_vi->append(x, v);
 
-        // Проверка выхода за границы
+        // Проверка выхода за границу
+        if (x + step > m_parametres.B)
+        {
+            step = m_parametres.B - x;
+            method(x, v, step);
+            validStep = true;
+            break;
+        }
         if (x >= m_parametres.B - m_parametres.BOUND_EPS || step < MIN_STEP_THRESHOLD) {
             break;
         }
     }
 
     m_results = results;
-
-    // Обновляем справочную информацию
     referenceInfo.iterationsCount = results.size();
-
     referenceInfo.distanceToBoundary = m_parametres.B - x;
     referenceInfo.maxOLP = maxOLP;
     referenceInfo.stepDoublingCount = doublingCount;
