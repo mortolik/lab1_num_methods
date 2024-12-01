@@ -183,17 +183,21 @@ void SecondTaskModel::runRK4WithAdaptiveStepFor2(double x, std::vector<double> v
             double S = sqrt(S1 * S1 + S2 * S2);
             row.OLP_S = std::abs(S) * pow(2.0, 4);
 
-            if (row.OLP_S > maxOLP) {
+            if (row.OLP_S > maxOLP)
+            {
                 maxOLP = row.OLP_S;  // Обновляем максимальное значение ОЛП
             }
 
             // Контроль ошибки
-            if (std::abs(S) > tolerance) {
+            if (std::abs(S) > tolerance)
+            {
                 step /= 2.0;  // Уменьшение шага
                 row.divisions += 1;
                 reductionCount++;
                 continue;     // Повторяем шаг
-            } else if (std::abs(S) < tolerance / pow(2.0, 5)) {
+            }
+            else if (std::abs(S) < tolerance / pow(2.0, 5))
+            {
                 step = std::min(step * 2.0, m_parametres.B - x);  // Увеличиваем шаг
                 row.doublings += 1;
                 doublingCount++;
@@ -203,7 +207,8 @@ void SecondTaskModel::runRK4WithAdaptiveStepFor2(double x, std::vector<double> v
             {
                 validStep = true; // Шаг подходит, выходим из цикла
             }
-            if (step < MIN_STEP_THRESHOLD) {
+            if (step < MIN_STEP_THRESHOLD)
+            {
                 validStep = true; // Завершаем адаптацию шага
             }
         }
@@ -221,11 +226,14 @@ void SecondTaskModel::runRK4WithAdaptiveStepFor2(double x, std::vector<double> v
         row.X_i = x;
         row.V0_i = v[0];
         row.V1_i = v[1];
-        if (step > maxStep) {
+
+        if (step > maxStep)
+        {
             maxStep = step;
             maxStepX = x + step;
         }
-        if (step < minStep) {
+        if (step < minStep)
+        {
             minStep = step;
             minStepX = x;
         }
@@ -241,7 +249,8 @@ void SecondTaskModel::runRK4WithAdaptiveStepFor2(double x, std::vector<double> v
         results.append(row);
 
         // Проверка выхода за правую границу
-        if (x + step > m_parametres.B) {
+        if (x + step > m_parametres.B)
+        {
             step = m_parametres.B - x;  // Корректируем шаг
             //methodFor2(x, v, step); // Делаем последний шаг до границы
         }

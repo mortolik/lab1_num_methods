@@ -78,7 +78,6 @@ void FirstTaskModel::runRK4(double x, double v, QtCharts::QLineSeries *series_ui
     referenceInfo.maxOLP = 0;             // ОЛП не вычисляется в этом методе
 }
 
-
 void FirstTaskModel::runRK4WithAdaptiveStep(double x, double v, QtCharts::QLineSeries *series_ui, QtCharts::QLineSeries *series_vi)
 {
     series_ui->clear();
@@ -111,6 +110,10 @@ void FirstTaskModel::runRK4WithAdaptiveStep(double x, double v, QtCharts::QLineS
         while (!validStep) {
             x_half = x;
             v_half = v;
+
+            x_full = x;
+            v_full = v;
+
             double step_half = step / 2.0;
 
             // Два шага с половинным шагом
@@ -118,43 +121,49 @@ void FirstTaskModel::runRK4WithAdaptiveStep(double x, double v, QtCharts::QLineS
             method(x_half, v_half, step_half);
 
             // Один шаг с полным шагом
-            x_full = x;
-            v_full = v;
             method(x_full, v_full, step);
 
             // Локальная погрешность
             double S = (v_half - v_full) / (pow(2.0, 4) - 1.0);
             row.OLP_S = std::abs(S) * pow(2.0, 4);
 
-            if (row.OLP_S > maxOLP) {
+            if (row.OLP_S > maxOLP)
+            {
                 maxOLP = row.OLP_S;  // Обновляем максимальное значение ОЛП
             }
 
-            if (std::abs(S) > tolerance) {
+            if (std::abs(S) > tolerance)
+            {
                 // Деление шага
                 step /= 2.0;
                 row.divisions += 1;
                 reductionCount++;
                 continue;     // Повторяем шаг
-            } else if (std::abs(S) < tolerance / pow(2, 5)) {
+            }
+            else if (std::abs(S) < tolerance / pow(2.0, 5))
+            {
                 // Удвоение шага
                 step *= 2.0;
                 row.doublings += 1;
                 doublingCount++;
                 validStep = true; // Шаг подходит, выходим из цикла
-            } else {
+            }
+            else
+            {
                 validStep = true; // Шаг подходит, выходим из цикла
             }
-            if (x + step > m_parametres.B) {
+            // Проверка на минимальный шаг
+            if (step < MIN_STEP_THRESHOLD)
+            {
+                validStep = true; // Завершаем адаптацию шага
+            }
+            if (x + step > m_parametres.B)
+            {
                 step = m_parametres.B - x; // Корректируем шаг
                 method(x, v, step); // Делаем последний шаг до границы
                 break;
             }
 
-            // Проверка на минимальный шаг
-            if (step < MIN_STEP_THRESHOLD) {
-                validStep = true; // Завершаем адаптацию шага
-            }
         }
 
         // Обновляем значения после корректного шага
@@ -168,11 +177,13 @@ void FirstTaskModel::runRK4WithAdaptiveStep(double x, double v, QtCharts::QLineS
         row.V_i = v;
 
         // Обновляем шаги для справочной информации
-        if (step > maxStep) {
+        if (step > maxStep)
+        {
             maxStep = step;
             maxStepX = x + step;
         }
-        if (step < minStep) {
+        if (step < minStep)
+        {
             minStep = step;
             minStepX = x;
         }
@@ -199,7 +210,6 @@ void FirstTaskModel::runRK4WithAdaptiveStep(double x, double v, QtCharts::QLineS
     referenceInfo.minStepX = minStepX;
     referenceInfo.minStep = minStep;
 }
-
 
 double FirstTaskModel::f(double x, double v)
 {
