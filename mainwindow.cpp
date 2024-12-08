@@ -124,17 +124,19 @@ QWidget* MainWindow::createFirstTaskTab() {
     auto *aSpinBox = createSpinBox("A:", paramLayout, -10.0, 10.0, 1.0);
     auto *bSpinBox = createSpinBox("B:", paramLayout, -10.0, 10.0, 1.0);
     auto *stepSpinBox = createSpinBox("Step:", paramLayout, 0.0001, 1.0, 0.001);
-    auto *maxStepsSpinBox = createSpinBox("Max Steps:", paramLayout, 1, 1000, 100);
-    auto *epsSpinBox = createSpinBox("Eps:", paramLayout, 0.0001, 1.0, 0.001);
+    auto *maxStepsSpinBox = createSpinBox("Max Steps:", paramLayout, 1, 100000, 100);
+    auto *epsSpinBox = createSpinBox("Eps:", paramLayout, 0.000000001, 1.0, 0.000000001);
     auto *boundEpsSpinBox = createSpinBox("Bound Eps:", paramLayout, 0.0001, 1.0, 0.001);
     auto *startUSpinBox = createSpinBox("Start U:", paramLayout, -100.0, 100.0, 1.0);
+
+    epsSpinBox->setDecimals(9);
 
     // Установка значений по умолчанию
     aSpinBox->setValue(0.0);
     bSpinBox->setValue(5.0);
     stepSpinBox->setValue(0.01);
-    maxStepsSpinBox->setValue(500);
-    epsSpinBox->setValue(0.001);
+    maxStepsSpinBox->setValue(5000);
+    epsSpinBox->setValue(0.000000001);
     boundEpsSpinBox->setValue(0.01);
     startUSpinBox->setValue(1.0);
 

@@ -130,11 +130,14 @@ void FirstTaskModel::runRK4WithAdaptiveStep(double x, double v, QtCharts::QLineS
             }
 
             // Локальная погрешность
-            double S = (v_half - v_full) / (pow(2.0, 4) - 1.0);
-            row.OLP_S = std::abs(S) * pow(2.0, 4);
+            long double S = ((long double)v_half - (long double)v_full) / (pow(2.0, 4) - 1.0);
 
-            if (row.OLP_S > maxOLP)
-                maxOLP = row.OLP_S;
+            long double OLP = std::abs(S) * pow(2.0, 4);
+            // Преобразование числа в строку с высокой точностью
+            QString formattedNumber = QString::number(OLP, 'f', 20); // 20 знаков после запятой
+            row.OLP_S1 = formattedNumber;
+            if (OLP > maxOLP)
+                maxOLP = OLP;
 
             if (std::abs(S) < tolerance / pow(2.0, 5))
             {
@@ -172,9 +175,11 @@ void FirstTaskModel::runRK4WithAdaptiveStep(double x, double v, QtCharts::QLineS
                     method(x_half, v_half, h / 2.0);
                     method(x_full, v_full, h);
 
-                    S = (v_half - v_full) / (pow(2.0, 4) - 1.0);
-                    row.OLP_S = std::abs(S) * pow(2.0, 4);
-
+                    S = ((long double)v_half - (long double)v_full) / (pow(2.0, 4) - 1.0);
+                    OLP = std::abs(S) * pow(2.0, 4);
+                    // Преобразование числа в строку с высокой точностью
+                    formattedNumber = QString::number(OLP, 'f', 20); // 20 знаков после запятой
+                    row.OLP_S1 = formattedNumber;
                     if (std::abs(S) <= tolerance) {
                         step = h;
                         row.STEP_i = step;
