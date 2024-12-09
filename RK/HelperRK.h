@@ -23,8 +23,11 @@ namespace RungeKutt
         double V_i = 0;           // V_i
         double V_i_hat = 0;       // V_i^
         double V_diff = 0;        // V_i - V_i^
-        double OLP_S = 0;
-        QString OLP_S1 = 0;         // ОЛП(S)
+        double OLP_S = 0;         // ОЛП(S)
+        QString OLP_S1 = 0;
+        QString V_i_display = 0;           // V_i
+        QString V_i_hat_display = 0;       // V_i^
+        QString V_diff_display = 0;        // V_i - V_i^
         double STEP_i = 0;        // STEP_i
         int divisions = 0;        // Кол-во делений
         int doublings = 0;        // Кол-во удвоений

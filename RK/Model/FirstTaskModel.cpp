@@ -208,12 +208,23 @@ void FirstTaskModel::runRK4WithAdaptiveStep(double x, double v, QtCharts::QLineS
         {
             break; // Некорректные значения, завершаем
         }
-        row.V_i_hat = v_half;
-        row.V_diff = std::abs(v_half - v_full);
+        //row.V_i_hat = v_half;
+
+        QString Vd = QString::number(v_half, 'f', 20);
+        row.V_i_hat_display = Vd;
+
+        //row.V_diff = std::abs(v_half - v_full);
+
+        Vd = QString::number(std::abs(v_half - v_full), 'f', 20);
+        row.V_diff_display = Vd;
+
         x = x_full;
         v = v_full;
         row.X_i = x;
-        row.V_i = v;
+        //row.V_i = v;
+
+        Vd = QString::number(v, 'f', 20);
+        row.V_i_display = Vd;
 
         if (step > maxStep) {
             maxStep = step;

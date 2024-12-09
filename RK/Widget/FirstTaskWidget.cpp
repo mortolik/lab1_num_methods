@@ -168,9 +168,9 @@ void FirstTaskWidget::updateTable() {
         const auto &row = results[i];
         m_tableWidget->setItem(i, 0, new QTableWidgetItem(QString::number(row.index)));
         m_tableWidget->setItem(i, 1, new QTableWidgetItem(QString::number(row.X_i, 'g', 10)));
-        m_tableWidget->setItem(i, 2, new QTableWidgetItem(QString::number(row.V_i, 'g', 10)));
-        m_tableWidget->setItem(i, 3, new QTableWidgetItem(QString::number(row.V_i_hat, 'g', 10)));
-        m_tableWidget->setItem(i, 4, new QTableWidgetItem(QString::number(row.V_diff, 'g', 10)));
+        m_tableWidget->setItem(i, 2, new QTableWidgetItem(row.V_i_display));
+        m_tableWidget->setItem(i, 3, new QTableWidgetItem(row.V_i_hat_display));
+        m_tableWidget->setItem(i, 4, new QTableWidgetItem(row.V_diff_display));
         m_tableWidget->setItem(i, 5, new QTableWidgetItem(row.OLP_S1));
         m_tableWidget->setItem(i, 6, new QTableWidgetItem(QString::number(row.STEP_i, 'g', 10)));
         m_tableWidget->setItem(i, 7, new QTableWidgetItem(QString::number(row.divisions)));
